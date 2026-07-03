@@ -1,0 +1,95 @@
+"use client";
+
+import { useTransition } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { loginSchema, type LoginValues } from "@/lib/schemas";
+import { loginUser } from "./actions";
+
+export function LoginForm() {
+  const [isPending, startTransition] = useTransition();
+
+  const form = useForm<LoginValues>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      phone: "",
+      pin: "",
+    },
+  });
+
+  function onSubmit(values: LoginValues) {
+    startTransition(async () => {
+      const result = await loginUser(values);
+      if (result?.error) toast.error(result.error);
+    });
+  }
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+        <FormField
+          control={form.control}
+          name="phone"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Telefoni / Phone number</FormLabel>
+              <FormControl>
+                <Input
+                  {...field}
+                  className="h-12 text-base"
+                  type="tel"
+                  inputMode="numeric"
+                  autoComplete="tel"
+                  placeholder="078 123 4567"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="pin"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>PIN</FormLabel>
+              <FormControl>
+                <Input
+                  {...field}
+                  className="h-12 text-base"
+                  type="password"
+                  inputMode="numeric"
+                  maxLength={5}
+                  autoComplete="current-password"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <Button
+          type="submit"
+          className="h-12 w-full text-base"
+          disabled={isPending}
+        >
+          {isPending && (
+            <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+          )}
+          Injira / Sign in
+        </Button>
+      </form>
+    </Form>
+  );
+}
