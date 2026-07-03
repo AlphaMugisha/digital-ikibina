@@ -1,11 +1,18 @@
 import type { Metadata } from "next";
-import { Bricolage_Grotesque, Geist, Geist_Mono } from "next/font/google";
+import { Fraunces, Geist_Mono, Plus_Jakarta_Sans } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const jakarta = Plus_Jakarta_Sans({
+  variable: "--font-jakarta",
   subsets: ["latin"],
+});
+
+const fraunces = Fraunces({
+  variable: "--font-fraunces",
+  subsets: ["latin"],
+  style: ["normal", "italic"],
+  axes: ["opsz", "SOFT", "WONK"],
 });
 
 const geistMono = Geist_Mono({
@@ -13,14 +20,23 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const bricolage = Bricolage_Grotesque({
-  variable: "--font-bricolage",
-  subsets: ["latin"],
-});
+const title = "Digital Ibimina — Ibimina byawe, kuri telefoni yawe";
+const description =
+  "Gukusanya, kubitsa, no kugurizanya byoroshye. Track contributions, loans, and share-outs — without the paper notebook.";
 
 export const metadata: Metadata = {
-  title: "Digital Ibimina",
-  description: "Gukusanya, kubitsa, no kugurizanya byoroshye",
+  title,
+  description,
+  icons: {
+    icon: "/icon.svg",
+  },
+  openGraph: {
+    title,
+    description,
+    siteName: "Digital Ibimina",
+    locale: "rw_RW",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
@@ -31,11 +47,12 @@ export default function RootLayout({
   return (
     <html
       lang="rw"
-      className={`${geistSans.variable} ${geistMono.variable} ${bricolage.variable} h-full antialiased`}
+      className={`${jakarta.variable} ${fraunces.variable} ${geistMono.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col">
+      <body className="min-h-full flex flex-col bg-background text-foreground">
         {children}
-        <Toaster position="top-center" />
+        <Toaster position="top-center" richColors />
       </body>
     </html>
   );
