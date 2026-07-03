@@ -1,0 +1,105 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id          String       @id @default(cuid())
+  phone       String       @unique
+  name        String
+  nationalId  String?      @unique
+  pinHash     String
+  createdAt   DateTime     @default(now())
+  memberships Membership[]
+  @@index([phone])
+}
+
+model Group {
+  id                 String       @id @default(cuid())
+  name               String
+  contributionAmount Int          // RWF cents
+  meetingDay         Int          // 0=Sunday..6=Saturday
+  interestRate       Int          // basis points (500 = 5%)
+  cycleStart         DateTime
+  cycleEnd           DateTime
+  createdAt          DateTime     @default(now())
+  memberships        Membership[]
+  meetings           Meeting[]
+}
+
+enum Role {
+  LEADER
+  SECRETARY
+  MEMBER
+}
+
+model Membership {
+  id            String         @id @default(cuid())
+  userId        String
+  groupId       String
+  role          Role           @default(MEMBER)
+  joinedAt      DateTime       @default(now())
+  user          User           @relation(fields: [userId], references: [id])
+  group         Group          @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  contributions Contribution[]
+  loans         Loan[]
+  @@unique([userId, groupId])
+  @@index([groupId])
+}
+
+model Meeting {
+  id             String         @id @default(cuid())
+  groupId        String
+  date           DateTime
+  totalCollected Int            @default(0)
+  notes          String?
+  createdAt      DateTime       @default(now())
+  group          Group          @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  contributions  Contribution[]
+  @@index([groupId, date])
+}
+
+model Contribution {
+  id           String     @id @default(cuid())
+  membershipId String
+  meetingId    String
+  amount       Int
+  recordedBy   String
+  createdAt    DateTime   @default(now())
+  membership   Membership @relation(fields: [membershipId], references: [id], onDelete: Cascade)
+  meeting      Meeting    @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  @@index([membershipId])
+}
+
+enum LoanStatus {
+  ACTIVE
+  PAID
+  DEFAULTED
+}
+
+model Loan {
+  id           String        @id @default(cuid())
+  membershipId String
+  amount       Int
+  interestRate Int
+  dueDate      DateTime
+  status       LoanStatus    @default(ACTIVE)
+  takenAt      DateTime      @default(now())
+  membership   Membership    @relation(fields: [membershipId], references: [id], onDelete: Cascade)
+  payments     LoanPayment[]
+  @@index([membershipId])
+}
+
+model LoanPayment {
+  id     String   @id @default(cuid())
+  loanId String
+  amount Int
+  paidAt DateTime @default(now())
+  loan   Loan     @relation(fields: [loanId], references: [id], onDelete: Cascade)
+  @@index([loanId])
+}
