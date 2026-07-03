@@ -1,4 +1,5 @@
 import { notFound, redirect } from "next/navigation";
+import { getLocale, getTranslations } from "next-intl/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { formatRWF } from "@/lib/money";
@@ -22,6 +23,7 @@ export default async function GroupPage({
   if (!membership) notFound();
 
   const { group } = membership;
+  const [locale, t] = await Promise.all([getLocale(), getTranslations("groups")]);
 
   return (
     <div className="mx-auto max-w-2xl">
@@ -29,15 +31,15 @@ export default async function GroupPage({
         {group.name}
       </h1>
       <p className="mt-1 text-sm font-semibold text-primary">
-        {formatRWF(group.contributionAmount)}
-        <span className="font-normal text-muted-foreground"> / icyumweru</span>
+        {formatRWF(group.contributionAmount, locale)}
+        <span className="font-normal text-muted-foreground"> {t("perWeek")}</span>
       </p>
-      <p className="mt-1 text-sm text-muted-foreground">
-        {meetingDayLabel(group.meetingDay)}
+      <p className="mt-1 text-sm capitalize text-muted-foreground">
+        {meetingDayLabel(group.meetingDay, locale)}
       </p>
 
       <div className="mt-10 rounded-2xl border border-dashed border-border bg-card px-6 py-12 text-center text-sm text-muted-foreground">
-        Imisanzu n&apos;inguzanyo biraza vuba / Coming in Session 3
+        {t("comingSoon")}
       </div>
     </div>
   );

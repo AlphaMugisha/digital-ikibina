@@ -1,10 +1,11 @@
 "use client";
 
-import { useTransition } from "react";
+import { useMemo, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -19,14 +20,21 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { DayPickerPills } from "@/components/forms/day-picker-pills";
 import { DateField } from "@/components/forms/date-field";
-import { groupFormSchema, type GroupFormValues } from "@/lib/schemas";
+import { createGroupFormSchema, type GroupFormValues } from "@/lib/schemas";
 import { createGroup } from "./actions";
 
 export function GroupForm() {
   const [isPending, startTransition] = useTransition();
+  const t = useTranslations("groups");
+  const tValidation = useTranslations("validation");
+
+  const schema = useMemo(
+    () => createGroupFormSchema(tValidation),
+    [tValidation],
+  );
 
   const form = useForm<GroupFormValues>({
-    resolver: zodResolver(groupFormSchema),
+    resolver: zodResolver(schema),
     defaultValues: {
       name: "",
       contributionAmount: "",
@@ -49,19 +57,19 @@ export function GroupForm() {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 pb-24 md:pb-0">
         <section className="space-y-5">
           <p className="text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
-            Amakuru y&apos;itsinda / Group details
+            {t("sectionDetails")}
           </p>
           <FormField
             control={form.control}
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Izina ry&apos;itsinda / Group name</FormLabel>
+                <FormLabel>{t("nameLabel")}</FormLabel>
                 <FormControl>
                   <Input
                     {...field}
                     className="h-12 rounded-xl text-base"
-                    placeholder="Abisunganye"
+                    placeholder={t("namePlaceholder")}
                   />
                 </FormControl>
                 <FormMessage />
@@ -73,7 +81,7 @@ export function GroupForm() {
             name="meetingDay"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Umunsi w&apos;inama / Meeting day</FormLabel>
+                <FormLabel>{t("meetingDayLabel")}</FormLabel>
                 <FormControl>
                   <DayPickerPills value={field.value} onChange={field.onChange} />
                 </FormControl>
@@ -87,14 +95,14 @@ export function GroupForm() {
 
         <section className="space-y-5">
           <p className="text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
-            Amafaranga / Money
+            {t("sectionMoney")}
           </p>
           <FormField
             control={form.control}
             name="contributionAmount"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Umusanzu wa buri cyumweru / Weekly contribution</FormLabel>
+                <FormLabel>{t("contributionLabel")}</FormLabel>
                 <FormControl>
                   <div className="relative">
                     <Input
@@ -118,7 +126,7 @@ export function GroupForm() {
             name="interestRate"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Inyungu ku nguzanyo / Loan interest rate</FormLabel>
+                <FormLabel>{t("interestLabel")}</FormLabel>
                 <FormControl>
                   <div className="relative">
                     <Input
@@ -133,9 +141,7 @@ export function GroupForm() {
                     </span>
                   </div>
                 </FormControl>
-                <FormDescription>
-                  Urugero: 5 bisobanura 5% ku nguzanyo / e.g. 5 means 5% per loan
-                </FormDescription>
+                <FormDescription>{t("interestHint")}</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -146,7 +152,7 @@ export function GroupForm() {
 
         <section className="space-y-5">
           <p className="text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
-            Umuzenguruko / Cycle
+            {t("sectionCycle")}
           </p>
           <div className="grid gap-5 sm:grid-cols-2">
             <FormField
@@ -154,12 +160,12 @@ export function GroupForm() {
               name="cycleStart"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Gutangira / Cycle start</FormLabel>
+                  <FormLabel>{t("cycleStartLabel")}</FormLabel>
                   <FormControl>
                     <DateField
                       value={field.value}
                       onChange={field.onChange}
-                      placeholder="Hitamo itariki"
+                      placeholder={t("datePlaceholder")}
                     />
                   </FormControl>
                   <FormMessage />
@@ -171,12 +177,12 @@ export function GroupForm() {
               name="cycleEnd"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Kurangiza / Cycle end</FormLabel>
+                  <FormLabel>{t("cycleEndLabel")}</FormLabel>
                   <FormControl>
                     <DateField
                       value={field.value}
                       onChange={field.onChange}
-                      placeholder="Hitamo itariki"
+                      placeholder={t("datePlaceholder")}
                     />
                   </FormControl>
                   <FormMessage />
@@ -196,7 +202,7 @@ export function GroupForm() {
             {isPending && (
               <Loader2 className="size-4 animate-spin" aria-hidden="true" />
             )}
-            Kora itsinda / Create group
+            {t("submitCreate")}
           </Button>
         </div>
       </form>

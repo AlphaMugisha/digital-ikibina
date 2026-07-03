@@ -1,9 +1,11 @@
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { LogOut } from "lucide-react";
 import { auth } from "@/auth";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Logo } from "@/components/logo";
+import { LanguageSwitcher } from "@/components/language-switcher";
 import { BottomNav, SidebarNav } from "@/components/dashboard/nav";
 import { logout } from "./actions";
 
@@ -13,6 +15,7 @@ export default async function DashboardLayout({
   const session = await auth();
   if (!session?.user) redirect("/login");
 
+  const t = await getTranslations("common");
   const initial = (session.user.name ?? "?").charAt(0).toUpperCase();
 
   return (
@@ -35,6 +38,7 @@ export default async function DashboardLayout({
         <div className="mt-6 flex-1">
           <SidebarNav />
         </div>
+        <LanguageSwitcher className="w-full justify-start px-4" />
         <form action={logout}>
           <Button
             type="submit"
@@ -42,7 +46,7 @@ export default async function DashboardLayout({
             className="h-11 w-full justify-start gap-3 rounded-full px-4 text-muted-foreground"
           >
             <LogOut className="size-5" aria-hidden="true" />
-            Sohoka / Sign out
+            {t("signOut")}
           </Button>
         </form>
       </aside>

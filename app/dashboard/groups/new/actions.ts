@@ -1,10 +1,11 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { toCents } from "@/lib/money";
-import { groupFormSchema, type GroupFormValues } from "@/lib/schemas";
+import { createGroupFormSchema, type GroupFormValues } from "@/lib/schemas";
 
 export async function createGroup(
   values: GroupFormValues,
@@ -12,9 +13,14 @@ export async function createGroup(
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
 
-  const parsed = groupFormSchema.safeParse(values);
+  const [tValidation, tErrors] = await Promise.all([
+    getTranslations("validation"),
+    getTranslations("errors"),
+  ]);
+
+  const parsed = createGroupFormSchema(tValidation).safeParse(values);
   if (!parsed.success) {
-    return { error: "Amakuru winjije ntiyemewe / Please check the form and try again" };
+    return { error: tErrors("formInvalid") };
   }
 
   let groupId: string;
@@ -41,10 +47,7 @@ export async function createGroup(
     });
     groupId = group.id;
   } catch {
-    return {
-      error:
-        "Gukora itsinda ntibyakunze — ongera ugerageze / Creating the group failed — please try again",
-    };
+    return { error: tErrors("groupCreateFailed") };
   }
 
   redirect(`/dashboard/groups/${groupId}`);

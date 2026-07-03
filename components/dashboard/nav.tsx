@@ -2,14 +2,18 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { CircleUser, Home, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const LINKS = [
-  { href: "/dashboard", rw: "Ahabanza", en: "Home", icon: Home, exact: true },
-  { href: "/dashboard/groups", rw: "Amatsinda", en: "Groups", icon: Users, exact: false },
-  { href: "/dashboard/profile", rw: "Umwirondoro", en: "Profile", icon: CircleUser, exact: false },
-] as const;
+function useLinks() {
+  const t = useTranslations("common");
+  return [
+    { href: "/dashboard", label: t("home"), icon: Home, exact: true },
+    { href: "/dashboard/groups", label: t("groups"), icon: Users, exact: false },
+    { href: "/dashboard/profile", label: t("profile"), icon: CircleUser, exact: false },
+  ] as const;
+}
 
 function isActive(pathname: string, href: string, exact: boolean) {
   return exact ? pathname === href : pathname.startsWith(href);
@@ -18,6 +22,7 @@ function isActive(pathname: string, href: string, exact: boolean) {
 /** Floating pill tab bar — mobile only. */
 export function BottomNav() {
   const pathname = usePathname();
+  const links = useLinks();
 
   return (
     <nav
@@ -26,7 +31,7 @@ export function BottomNav() {
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
       <ul className="grid grid-cols-3">
-        {LINKS.map(({ href, rw, icon: Icon, exact }) => {
+        {links.map(({ href, label, icon: Icon, exact }) => {
           const active = isActive(pathname, href, exact);
           return (
             <li key={href}>
@@ -39,7 +44,7 @@ export function BottomNav() {
                 )}
               >
                 <Icon className="size-5" aria-hidden="true" />
-                {rw}
+                {label}
                 {active && (
                   <span
                     className="absolute top-2 size-1 rounded-full bg-primary"
@@ -58,10 +63,11 @@ export function BottomNav() {
 /** Sidebar links — desktop only (the aside wrapper lives in the layout). */
 export function SidebarNav() {
   const pathname = usePathname();
+  const links = useLinks();
 
   return (
     <ul className="space-y-1">
-      {LINKS.map(({ href, rw, en, icon: Icon, exact }) => {
+      {links.map(({ href, label, icon: Icon, exact }) => {
         const active = isActive(pathname, href, exact);
         return (
           <li key={href}>
@@ -76,7 +82,7 @@ export function SidebarNav() {
               )}
             >
               <Icon className="size-5" aria-hidden="true" />
-              {rw} / {en}
+              {label}
             </Link>
           </li>
         );

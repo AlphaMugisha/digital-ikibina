@@ -3,7 +3,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { setUserLocale } from "@/i18n/locale";
-import { isLocale, type Locale } from "@/i18n/config";
+import { isLocale } from "@/i18n/config";
 
 export async function setLocale(locale: string): Promise<void> {
   if (!isLocale(locale)) return;
@@ -18,5 +18,3 @@ export async function setLocale(locale: string): Promise<void> {
     });
   }
 }
-
-export type { Locale };

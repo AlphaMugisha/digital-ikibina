@@ -113,6 +113,9 @@
     "wrongCredentials": "Téléphone ou PIN incorrect",
     "notAuthorized": "Vous n'avez pas la permission de faire cela",
     "groupCreateFailed": "La création du groupe a échoué — veuillez réessayer",
+    "meetingCreateFailed": "Le démarrage de la réunion a échoué — veuillez réessayer",
+    "contributionSaveFailed": "L'enregistrement de la cotisation a échoué — veuillez réessayer",
+    "invalidAmount": "Entrez un montant valide supérieur à zéro",
     "memberNotFound": "Aucun membre trouvé avec ce numéro",
     "memberAlreadyInGroup": "Cette personne est déjà membre du groupe",
     "cannotChangeOwnRole": "Vous ne pouvez pas modifier votre propre rôle"
@@ -186,7 +189,10 @@
     "notRecorded": "Non enregistré",
     "recordSaved": "Cotisation enregistrée",
     "meetingEnded": "Réunion terminée",
-    "notAuthorizedRedirect": "Seuls le responsable ou le secrétaire peuvent faire cela"
+    "notAuthorizedRedirect": "Seuls le responsable ou le secrétaire peuvent faire cela",
+    "recordFor": "Cotisation de {name}",
+    "membersRecorded": "Membres",
+    "phoneEndingIn": "se terminant par {digits}"
   },
   "members": {
     "addMember": "Ajouter un membre",
@@ -194,6 +200,7 @@
     "existingUser": "Utilisateur existant",
     "newUser": "Nouvel utilisateur",
     "searchByPhone": "Rechercher par numéro de téléphone",
+    "searchAction": "Rechercher",
     "phoneLabel": "Numéro de téléphone",
     "nameLabel": "Nom complet",
     "add": "Ajouter le membre",

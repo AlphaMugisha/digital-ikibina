@@ -113,6 +113,9 @@
     "wrongCredentials": "Telefoni cyangwa PIN sibyo",
     "notAuthorized": "Ntabwo wemerewe gukora iki gikorwa",
     "groupCreateFailed": "Gukora itsinda ntibyakunze — ongera ugerageze",
+    "meetingCreateFailed": "Gutangira inama ntibyakunze — ongera ugerageze",
+    "contributionSaveFailed": "Kubika umusanzu ntibyakunze — ongera ugerageze",
+    "invalidAmount": "Andika umubare uruta zeru wemewe",
     "memberNotFound": "Nta munyamuryango ufite iyo numero",
     "memberAlreadyInGroup": "Uyu muntu asanzwe ari mu itsinda",
     "cannotChangeOwnRole": "Ntushobora guhindura uruhare rwawe"
@@ -186,7 +189,10 @@
     "notRecorded": "Ntiyanditswe",
     "recordSaved": "Umusanzu wabitswe",
     "meetingEnded": "Inama yarangiye",
-    "notAuthorizedRedirect": "Umuyobozi cyangwa umunyamabanga gusa ni bo bashobora gukora iki"
+    "notAuthorizedRedirect": "Umuyobozi cyangwa umunyamabanga gusa ni bo bashobora gukora iki",
+    "recordFor": "Umusanzu wa {name}",
+    "membersRecorded": "Abanyamuryango",
+    "phoneEndingIn": "irangira kuri {digits}"
   },
   "members": {
     "addMember": "Ongeraho umunyamuryango",
@@ -194,6 +200,7 @@
     "existingUser": "Uwasanzwe afite konti",
     "newUser": "Umushya",
     "searchByPhone": "Shakisha ukoresheje numero ya telefoni",
+    "searchAction": "Shakisha",
     "phoneLabel": "Numero ya telefoni",
     "nameLabel": "Amazina yombi",
     "add": "Ongeraho umunyamuryango",

@@ -1,6 +1,7 @@
 "use client";
 
 import { format, parseISO } from "date-fns";
+import { useLocale } from "next-intl";
 import { CalendarIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -17,7 +18,14 @@ export function DateField({
   onChange: (value: string) => void;
   placeholder: string;
 }) {
+  const locale = useLocale();
   const selected = value ? parseISO(value) : undefined;
+
+  const dateFormatter = new Intl.DateTimeFormat(locale, {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
 
   return (
     <Popover>
@@ -31,7 +39,7 @@ export function DateField({
           )}
         >
           <CalendarIcon className="size-4" aria-hidden="true" />
-          {selected ? format(selected, "d MMM yyyy") : placeholder}
+          {selected ? dateFormatter.format(selected) : placeholder}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="start">

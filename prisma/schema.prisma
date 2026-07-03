@@ -70,10 +70,12 @@ model Contribution {
   membershipId String
   meetingId    String
   amount       Int
+  note         String?
   recordedBy   String
   createdAt    DateTime   @default(now())
   membership   Membership @relation(fields: [membershipId], references: [id], onDelete: Cascade)
   meeting      Meeting    @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  @@unique([membershipId, meetingId])
   @@index([membershipId])
 }
 

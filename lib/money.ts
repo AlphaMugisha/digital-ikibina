@@ -1,3 +1,5 @@
+import { defaultLocale } from "@/i18n/config";
+
 /**
  * Money helpers — HARD RULE: all money in the database is INTEGER cents
  * (RWF × 100), never floats. Convert at the edges only:
@@ -36,18 +38,19 @@ export function fromCents(cents: number): number {
 }
 
 /**
- * Format integer cents for display, e.g. 500000 → "5,000 RWF".
- * RWF is used without decimals in practice; fractional cents (from interest
+ * Format integer cents as a localized RWF currency string, e.g. 500000 →
+ * "5,000 RWF" (en), "5 000 RWF" (fr), "RF 5.000" (rw). RWF has no minor unit,
+ * so it's shown with 0 decimals; fractional cents (rare — leftover interest
  * math) are shown with 2 decimals only when present.
  */
-export function formatRWF(cents: number): string {
+export function formatRWF(cents: number, locale: string = defaultLocale): string {
   const francs = fromCents(cents);
   const hasFraction = cents % 100 !== 0;
 
-  const formatted = new Intl.NumberFormat("en-US", {
+  return new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency: "RWF",
     minimumFractionDigits: hasFraction ? 2 : 0,
     maximumFractionDigits: hasFraction ? 2 : 0,
   }).format(francs);
-
-  return `${formatted} RWF`;
 }

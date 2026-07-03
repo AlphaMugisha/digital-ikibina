@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getLocale, getTranslations } from "next-intl/server";
 import { CalendarDays, ChevronRight, Users } from "lucide-react";
 import type { Role } from "@prisma/client";
 import { formatRWF } from "@/lib/money";
@@ -29,7 +30,10 @@ type GroupCardProps = {
   role?: Role;
 };
 
-export function GroupCard({ group, memberCount, role }: GroupCardProps) {
+export async function GroupCard({ group, memberCount, role }: GroupCardProps) {
+  const [locale, t] = await Promise.all([getLocale(), getTranslations("groups")]);
+  const roleLabel = role && t(`role${role.charAt(0)}${role.slice(1).toLowerCase()}` as "roleLeader");
+
   return (
     <Link
       href={`/dashboard/groups/${group.id}`}
@@ -49,22 +53,22 @@ export function GroupCard({ group, memberCount, role }: GroupCardProps) {
               variant="outline"
               className={cn("rounded-full border-none font-semibold", ROLE_BADGE[role])}
             >
-              {role}
+              {roleLabel}
             </Badge>
           )}
         </div>
         <p className="mt-1 text-sm font-semibold text-primary">
-          {formatRWF(group.contributionAmount)}
-          <span className="font-normal text-muted-foreground"> / icyumweru</span>
+          {formatRWF(group.contributionAmount, locale)}
+          <span className="font-normal text-muted-foreground"> {t("perWeek")}</span>
         </p>
         <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
           <span className="flex items-center gap-1">
             <Users className="size-3.5" aria-hidden="true" />
-            {memberCount} {memberCount === 1 ? "umunyamuryango" : "abanyamuryango"}
+            {t("membersCount", { count: memberCount })}
           </span>
-          <span className="flex items-center gap-1">
+          <span className="flex items-center gap-1 capitalize">
             <CalendarDays className="size-3.5" aria-hidden="true" />
-            {meetingDayLabel(group.meetingDay)}
+            {meetingDayLabel(group.meetingDay, locale)}
           </span>
         </div>
       </div>

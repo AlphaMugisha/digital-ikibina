@@ -1,19 +1,23 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { Plus, Users } from "lucide-react";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { Button } from "@/components/ui/button";
 import { GroupCard } from "@/components/groups/group-card";
 
-export const metadata: Metadata = {
-  title: "Amatsinda / Groups — Digital Ibimina",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("groups");
+  return { title: `${t("title")} — Digital Ibimina` };
+}
 
 export default async function GroupsPage() {
   const session = await auth();
   if (!session?.user) redirect("/login");
+
+  const t = await getTranslations("groups");
 
   const memberships = await prisma.membership.findMany({
     where: { userId: session.user.id },
@@ -29,13 +33,13 @@ export default async function GroupsPage() {
     <div className="mx-auto max-w-2xl">
       <div className="flex items-center justify-between">
         <h1 className="font-display text-2xl font-medium tracking-tight text-foreground">
-          Amatsinda / Groups
+          {t("title")}
         </h1>
         {/* Desktop: regular button; mobile uses the floating button below */}
         <Button asChild className="hidden h-11 rounded-full md:inline-flex">
           <Link href="/dashboard/groups/new">
             <Plus className="size-5" aria-hidden="true" />
-            Kora itsinda rishya / Create new group
+            {t("createNew")}
           </Link>
         </Button>
       </div>
@@ -46,10 +50,10 @@ export default async function GroupsPage() {
             <Users className="size-8" aria-hidden="true" />
           </span>
           <h2 className="mt-4 font-display font-semibold text-foreground">
-            Nta tsinda ufite / You have no groups yet
+            {t("noGroupsTitle")}
           </h2>
           <p className="mt-1 max-w-xs text-sm text-muted-foreground">
-            Kanda buto yo hepfo ukore itsinda ryawe rya mbere.
+            {t("noGroupsSubtitle")}
           </p>
         </div>
       ) : (
@@ -69,7 +73,7 @@ export default async function GroupsPage() {
       <Button
         asChild
         size="icon"
-        aria-label="Kora itsinda rishya / Create new group"
+        aria-label={t("createNew")}
         className="fixed bottom-24 right-4 z-30 size-14 rounded-full shadow-warm-lg md:hidden"
       >
         <Link href="/dashboard/groups/new">
