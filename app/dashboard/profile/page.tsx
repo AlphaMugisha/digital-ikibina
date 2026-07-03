@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { LogOut } from "lucide-react";
 import { auth } from "@/auth";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { logout } from "../actions";
 
 export default async function ProfilePage() {
@@ -10,20 +11,22 @@ export default async function ProfilePage() {
 
   return (
     <div className="mx-auto max-w-md">
-      <h1 className="font-display text-2xl font-bold text-emerald-950">
+      <h1 className="font-display text-2xl font-medium tracking-tight text-foreground">
         Umwirondoro / Profile
       </h1>
 
-      <div className="mt-6 rounded-2xl border border-slate-200 bg-white p-5">
+      <div className="mt-6 rounded-2xl border border-border bg-card p-5 shadow-warm-sm">
         <div className="flex items-center gap-4">
-          <span className="flex size-14 items-center justify-center rounded-full bg-emerald-100 text-xl font-bold text-emerald-800">
-            {(session.user.name ?? "?").charAt(0).toUpperCase()}
-          </span>
+          <Avatar className="size-14">
+            <AvatarFallback className="bg-primary/10 text-xl font-semibold text-primary">
+              {(session.user.name ?? "?").charAt(0).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
           <div>
-            <p className="font-semibold text-emerald-950">
+            <p className="font-display font-semibold text-foreground">
               {session.user.name}
             </p>
-            <p className="font-mono text-sm text-slate-500">
+            <p className="text-sm text-muted-foreground">
               {session.user.phone}
             </p>
           </div>
@@ -34,7 +37,7 @@ export default async function ProfilePage() {
         <Button
           type="submit"
           variant="outline"
-          className="h-12 w-full gap-2 text-base text-red-600 hover:bg-red-50 hover:text-red-700"
+          className="h-12 w-full gap-2 rounded-full border-destructive/30 text-base text-destructive hover:bg-destructive/10 hover:text-destructive"
         >
           <LogOut className="size-5" aria-hidden="true" />
           Sohoka / Sign out

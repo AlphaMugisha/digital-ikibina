@@ -24,12 +24,14 @@ const title = "Digital Ibimina — Ibimina byawe, kuri telefoni yawe";
 const description =
   "Gukusanya, kubitsa, no kugurizanya byoroshye. Track contributions, loans, and share-outs — without the paper notebook.";
 
+const siteUrl = process.env.VERCEL_URL
+  ? `https://${process.env.VERCEL_URL}`
+  : "http://localhost:4000";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title,
   description,
-  icons: {
-    icon: "/icon.svg",
-  },
   openGraph: {
     title,
     description,

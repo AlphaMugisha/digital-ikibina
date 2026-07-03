@@ -15,14 +15,15 @@ function isActive(pathname: string, href: string, exact: boolean) {
   return exact ? pathname === href : pathname.startsWith(href);
 }
 
-/** Thumb-friendly bottom tab bar — mobile only. */
+/** Floating pill tab bar — mobile only. */
 export function BottomNav() {
   const pathname = usePathname();
 
   return (
     <nav
       aria-label="Main"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white pb-[env(safe-area-inset-bottom)] md:hidden"
+      className="fixed inset-x-4 bottom-4 z-40 rounded-full border border-border bg-background/95 shadow-warm-lg backdrop-blur-md md:hidden"
+      style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
       <ul className="grid grid-cols-3">
         {LINKS.map(({ href, rw, icon: Icon, exact }) => {
@@ -33,14 +34,18 @@ export function BottomNav() {
                 href={href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "flex h-16 flex-col items-center justify-center gap-1 text-xs",
-                  active
-                    ? "font-semibold text-emerald-700"
-                    : "text-slate-500 hover:text-slate-900",
+                  "relative flex h-14 flex-col items-center justify-center gap-0.5 text-[11px] font-medium",
+                  active ? "text-primary" : "text-muted-foreground",
                 )}
               >
                 <Icon className="size-5" aria-hidden="true" />
                 {rw}
+                {active && (
+                  <span
+                    className="absolute top-2 size-1 rounded-full bg-primary"
+                    aria-hidden="true"
+                  />
+                )}
               </Link>
             </li>
           );
@@ -64,10 +69,10 @@ export function SidebarNav() {
               href={href}
               aria-current={active ? "page" : undefined}
               className={cn(
-                "flex h-11 items-center gap-3 rounded-lg px-3 text-sm",
+                "flex h-11 items-center gap-3 rounded-full px-4 text-sm transition-colors",
                 active
-                  ? "bg-emerald-50 font-semibold text-emerald-800"
-                  : "text-slate-600 hover:bg-slate-50 hover:text-slate-900",
+                  ? "bg-primary/10 font-semibold text-primary"
+                  : "text-muted-foreground hover:bg-secondary hover:text-foreground",
               )}
             >
               <Icon className="size-5" aria-hidden="true" />

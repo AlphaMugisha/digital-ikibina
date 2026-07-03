@@ -15,6 +15,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { PinInput } from "@/components/auth/pin-input";
 import { loginSchema, type LoginValues } from "@/lib/schemas";
 import { loginUser } from "./actions";
 
@@ -48,7 +49,7 @@ export function LoginForm() {
               <FormControl>
                 <Input
                   {...field}
-                  className="h-12 text-base"
+                  className="h-12 rounded-xl text-base"
                   type="tel"
                   inputMode="numeric"
                   autoComplete="tel"
@@ -66,13 +67,9 @@ export function LoginForm() {
             <FormItem>
               <FormLabel>PIN</FormLabel>
               <FormControl>
-                <Input
-                  {...field}
-                  className="h-12 text-base"
-                  type="password"
-                  inputMode="numeric"
-                  maxLength={5}
-                  autoComplete="current-password"
+                <PinInput
+                  value={field.value}
+                  onChange={field.onChange}
                 />
               </FormControl>
               <FormMessage />
@@ -81,7 +78,7 @@ export function LoginForm() {
         />
         <Button
           type="submit"
-          className="h-12 w-full text-base"
+          className="h-12 w-full rounded-full text-base"
           disabled={isPending}
         >
           {isPending && (

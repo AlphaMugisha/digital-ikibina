@@ -16,7 +16,9 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { MEETING_DAYS } from "@/lib/days";
+import { Separator } from "@/components/ui/separator";
+import { DayPickerPills } from "@/components/forms/day-picker-pills";
+import { DateField } from "@/components/forms/date-field";
 import { groupFormSchema, type GroupFormValues } from "@/lib/schemas";
 import { createGroup } from "./actions";
 
@@ -44,101 +46,23 @@ export function GroupForm() {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Izina ry&apos;itsinda / Group name</FormLabel>
-              <FormControl>
-                <Input
-                  {...field}
-                  className="h-12 text-base"
-                  placeholder="Abisunganye"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="contributionAmount"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>
-                Umusanzu wa buri cyumweru (RWF) / Weekly contribution
-              </FormLabel>
-              <FormControl>
-                <Input
-                  {...field}
-                  className="h-12 text-base"
-                  type="text"
-                  inputMode="numeric"
-                  placeholder="2000"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="meetingDay"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Umunsi w&apos;inama / Meeting day</FormLabel>
-              <FormControl>
-                {/* Native select: opens the platform picker on mobile */}
-                <select
-                  {...field}
-                  className="border-input h-12 w-full rounded-md border bg-transparent px-3 text-base shadow-xs outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
-                >
-                  {MEETING_DAYS.map((day) => (
-                    <option key={day.value} value={String(day.value)}>
-                      {day.rw} / {day.en}
-                    </option>
-                  ))}
-                </select>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="interestRate"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>
-                Inyungu ku nguzanyo (%) / Loan interest rate
-              </FormLabel>
-              <FormControl>
-                <Input
-                  {...field}
-                  className="h-12 text-base"
-                  type="text"
-                  inputMode="decimal"
-                  placeholder="5"
-                />
-              </FormControl>
-              <FormDescription>
-                Urugero: 5 bisobanura 5% ku nguzanyo / e.g. 5 means 5% per loan
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <div className="grid gap-5 sm:grid-cols-2">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 pb-24 md:pb-0">
+        <section className="space-y-5">
+          <p className="text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
+            Amakuru y&apos;itsinda / Group details
+          </p>
           <FormField
             control={form.control}
-            name="cycleStart"
+            name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Gutangira / Cycle start</FormLabel>
+                <FormLabel>Izina ry&apos;itsinda / Group name</FormLabel>
                 <FormControl>
-                  <Input {...field} className="h-12 text-base" type="date" />
+                  <Input
+                    {...field}
+                    className="h-12 rounded-xl text-base"
+                    placeholder="Abisunganye"
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -146,28 +70,135 @@ export function GroupForm() {
           />
           <FormField
             control={form.control}
-            name="cycleEnd"
+            name="meetingDay"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Kurangiza / Cycle end</FormLabel>
+                <FormLabel>Umunsi w&apos;inama / Meeting day</FormLabel>
                 <FormControl>
-                  <Input {...field} className="h-12 text-base" type="date" />
+                  <DayPickerPills value={field.value} onChange={field.onChange} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
+        </section>
+
+        <Separator />
+
+        <section className="space-y-5">
+          <p className="text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
+            Amafaranga / Money
+          </p>
+          <FormField
+            control={form.control}
+            name="contributionAmount"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Umusanzu wa buri cyumweru / Weekly contribution</FormLabel>
+                <FormControl>
+                  <div className="relative">
+                    <Input
+                      {...field}
+                      className="h-12 rounded-xl pr-14 text-base"
+                      type="text"
+                      inputMode="numeric"
+                      placeholder="2000"
+                    />
+                    <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-sm font-medium text-muted-foreground">
+                      RWF
+                    </span>
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="interestRate"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Inyungu ku nguzanyo / Loan interest rate</FormLabel>
+                <FormControl>
+                  <div className="relative">
+                    <Input
+                      {...field}
+                      className="h-12 rounded-xl pr-10 text-base"
+                      type="text"
+                      inputMode="decimal"
+                      placeholder="5"
+                    />
+                    <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-sm font-medium text-muted-foreground">
+                      %
+                    </span>
+                  </div>
+                </FormControl>
+                <FormDescription>
+                  Urugero: 5 bisobanura 5% ku nguzanyo / e.g. 5 means 5% per loan
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </section>
+
+        <Separator />
+
+        <section className="space-y-5">
+          <p className="text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
+            Umuzenguruko / Cycle
+          </p>
+          <div className="grid gap-5 sm:grid-cols-2">
+            <FormField
+              control={form.control}
+              name="cycleStart"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Gutangira / Cycle start</FormLabel>
+                  <FormControl>
+                    <DateField
+                      value={field.value}
+                      onChange={field.onChange}
+                      placeholder="Hitamo itariki"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="cycleEnd"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Kurangiza / Cycle end</FormLabel>
+                  <FormControl>
+                    <DateField
+                      value={field.value}
+                      onChange={field.onChange}
+                      placeholder="Hitamo itariki"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        </section>
+
+        {/* Sticky on mobile (clears the floating bottom nav) so it's always reachable */}
+        <div className="fixed inset-x-4 bottom-24 z-30 md:static md:inset-auto">
+          <Button
+            type="submit"
+            className="h-14 w-full rounded-full text-base shadow-warm-lg md:shadow-none"
+            disabled={isPending}
+          >
+            {isPending && (
+              <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+            )}
+            Kora itsinda / Create group
+          </Button>
         </div>
-        <Button
-          type="submit"
-          className="h-12 w-full text-base"
-          disabled={isPending}
-        >
-          {isPending && (
-            <Loader2 className="size-4 animate-spin" aria-hidden="true" />
-          )}
-          Kora itsinda / Create group
-        </Button>
       </form>
     </Form>
   );

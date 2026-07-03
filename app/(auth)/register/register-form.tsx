@@ -15,6 +15,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { PinInput } from "@/components/auth/pin-input";
 import { registerSchema, type RegisterValues } from "@/lib/schemas";
 import { registerUser } from "./actions";
 
@@ -51,7 +52,7 @@ export function RegisterForm() {
               <FormControl>
                 <Input
                   {...field}
-                  className="h-12 text-base"
+                  className="h-12 rounded-xl text-base"
                   autoComplete="name"
                   placeholder="Mukamana Josiane"
                 />
@@ -69,7 +70,7 @@ export function RegisterForm() {
               <FormControl>
                 <Input
                   {...field}
-                  className="h-12 text-base"
+                  className="h-12 rounded-xl text-base"
                   type="tel"
                   inputMode="numeric"
                   autoComplete="tel"
@@ -91,7 +92,7 @@ export function RegisterForm() {
               <FormControl>
                 <Input
                   {...field}
-                  className="h-12 text-base"
+                  className="h-12 rounded-xl text-base"
                   type="tel"
                   inputMode="numeric"
                   maxLength={16}
@@ -109,14 +110,7 @@ export function RegisterForm() {
             <FormItem>
               <FormLabel>PIN (imibare 5) / PIN (5 digits)</FormLabel>
               <FormControl>
-                <Input
-                  {...field}
-                  className="h-12 text-base"
-                  type="password"
-                  inputMode="numeric"
-                  maxLength={5}
-                  autoComplete="new-password"
-                />
+                <PinInput value={field.value} onChange={field.onChange} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -129,14 +123,7 @@ export function RegisterForm() {
             <FormItem>
               <FormLabel>Subiramo PIN / Confirm PIN</FormLabel>
               <FormControl>
-                <Input
-                  {...field}
-                  className="h-12 text-base"
-                  type="password"
-                  inputMode="numeric"
-                  maxLength={5}
-                  autoComplete="new-password"
-                />
+                <PinInput value={field.value} onChange={field.onChange} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -144,7 +131,7 @@ export function RegisterForm() {
         />
         <Button
           type="submit"
-          className="h-12 w-full text-base"
+          className="h-12 w-full rounded-full text-base"
           disabled={isPending}
         >
           {isPending && (

@@ -8,22 +8,19 @@ export const metadata: Metadata = {
 
 export default function RegisterPage() {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-      <h1 className="font-display text-2xl font-bold text-emerald-950">
+    <div>
+      <h1 className="font-display text-3xl font-medium tracking-tight text-foreground">
         Iyandikishe / Create account
       </h1>
-      <p className="mt-1 text-sm text-slate-500">
+      <p className="mt-2 text-sm text-muted-foreground">
         Ukoresha telefoni yawe na PIN y&apos;imibare 5.
       </p>
-      <div className="mt-6">
+      <div className="mt-8">
         <RegisterForm />
       </div>
-      <p className="mt-6 text-center text-sm text-slate-500">
+      <p className="mt-6 text-center text-sm text-muted-foreground">
         Usanzwe ufite konti? / Already have an account?{" "}
-        <Link
-          href="/login"
-          className="font-semibold text-emerald-700 hover:underline"
-        >
+        <Link href="/login" className="font-semibold text-primary hover:underline">
           Injira / Sign in
         </Link>
       </p>

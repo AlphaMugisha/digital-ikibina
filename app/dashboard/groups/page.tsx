@@ -28,11 +28,11 @@ export default async function GroupsPage() {
   return (
     <div className="mx-auto max-w-2xl">
       <div className="flex items-center justify-between">
-        <h1 className="font-display text-2xl font-bold text-emerald-950">
+        <h1 className="font-display text-2xl font-medium tracking-tight text-foreground">
           Amatsinda / Groups
         </h1>
         {/* Desktop: regular button; mobile uses the floating button below */}
-        <Button asChild className="hidden h-11 md:inline-flex">
+        <Button asChild className="hidden h-11 rounded-full md:inline-flex">
           <Link href="/dashboard/groups/new">
             <Plus className="size-5" aria-hidden="true" />
             Kora itsinda rishya / Create new group
@@ -41,14 +41,14 @@ export default async function GroupsPage() {
       </div>
 
       {memberships.length === 0 ? (
-        <div className="mt-10 flex flex-col items-center rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-12 text-center">
-          <span className="flex size-16 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
+        <div className="mt-10 flex flex-col items-center rounded-2xl border border-dashed border-border bg-card px-6 py-12 text-center">
+          <span className="flex size-16 items-center justify-center rounded-full bg-primary/10 text-primary">
             <Users className="size-8" aria-hidden="true" />
           </span>
-          <h2 className="mt-4 font-semibold text-emerald-950">
+          <h2 className="mt-4 font-display font-semibold text-foreground">
             Nta tsinda ufite / You have no groups yet
           </h2>
-          <p className="mt-1 max-w-xs text-sm text-slate-500">
+          <p className="mt-1 max-w-xs text-sm text-muted-foreground">
             Kanda buto yo hepfo ukore itsinda ryawe rya mbere.
           </p>
         </div>
@@ -65,12 +65,12 @@ export default async function GroupsPage() {
         </div>
       )}
 
-      {/* Mobile floating action button, clearing the bottom tab bar */}
+      {/* Mobile floating action button, above the floating bottom nav */}
       <Button
         asChild
         size="icon"
         aria-label="Kora itsinda rishya / Create new group"
-        className="fixed bottom-24 right-4 z-40 size-14 rounded-full shadow-lg md:hidden"
+        className="fixed bottom-24 right-4 z-30 size-14 rounded-full shadow-warm-lg md:hidden"
       >
         <Link href="/dashboard/groups/new">
           <Plus className="size-6" aria-hidden="true" />

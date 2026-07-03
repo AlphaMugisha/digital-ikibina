@@ -166,6 +166,13 @@
       0 12px 32px oklch(0.22 0.02 155 / 10%),
       0 2px 8px oklch(0.22 0.02 155 / 6%);
   }
+  .scrollbar-none {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 /* Blurred gradient blobs behind the hero — emerald + amber, low opacity */
