@@ -5,6 +5,8 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { normalizeRwandanPhone } from "@/lib/phone";
 import { authConfig } from "@/auth.config";
+import { setUserLocale } from "@/i18n/locale";
+import { isLocale } from "@/i18n/config";
 
 const credentialsSchema = z.object({
   phone: z.string().min(1),
@@ -31,6 +33,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         const pinMatches = await bcrypt.compare(parsed.data.pin, user.pinHash);
         if (!pinMatches) return null;
+
+        // Sync the cookie to the user's saved preference on every successful login.
+        if (user.preferredLocale && isLocale(user.preferredLocale)) {
+          await setUserLocale(user.preferredLocale);
+        }
 
         return { id: user.id, name: user.name, phone: user.phone };
       },

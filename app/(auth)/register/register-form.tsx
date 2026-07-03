@@ -1,10 +1,11 @@
 "use client";
 
-import { useTransition } from "react";
+import { useMemo, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -16,14 +17,22 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { PinInput } from "@/components/auth/pin-input";
-import { registerSchema, type RegisterValues } from "@/lib/schemas";
+import { createRegisterSchema, type RegisterValues } from "@/lib/schemas";
 import { registerUser } from "./actions";
 
 export function RegisterForm() {
   const [isPending, startTransition] = useTransition();
+  const t = useTranslations("auth");
+  const tCommon = useTranslations("common");
+  const tValidation = useTranslations("validation");
+
+  const schema = useMemo(
+    () => createRegisterSchema(tValidation),
+    [tValidation],
+  );
 
   const form = useForm<RegisterValues>({
-    resolver: zodResolver(registerSchema),
+    resolver: zodResolver(schema),
     defaultValues: {
       name: "",
       phone: "",
@@ -48,13 +57,13 @@ export function RegisterForm() {
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Amazina yawe / Full name</FormLabel>
+              <FormLabel>{t("nameLabel")}</FormLabel>
               <FormControl>
                 <Input
                   {...field}
                   className="h-12 rounded-xl text-base"
                   autoComplete="name"
-                  placeholder="Mukamana Josiane"
+                  placeholder={t("namePlaceholder")}
                 />
               </FormControl>
               <FormMessage />
@@ -66,7 +75,7 @@ export function RegisterForm() {
           name="phone"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Telefoni / Phone number</FormLabel>
+              <FormLabel>{t("phoneLabel")}</FormLabel>
               <FormControl>
                 <Input
                   {...field}
@@ -74,7 +83,7 @@ export function RegisterForm() {
                   type="tel"
                   inputMode="numeric"
                   autoComplete="tel"
-                  placeholder="078 123 4567"
+                  placeholder={t("phonePlaceholder")}
                 />
               </FormControl>
               <FormMessage />
@@ -87,7 +96,7 @@ export function RegisterForm() {
           render={({ field }) => (
             <FormItem>
               <FormLabel>
-                Indangamuntu (si itegeko) / National ID (optional)
+                {t("nationalIdLabel")} ({tCommon("optional")})
               </FormLabel>
               <FormControl>
                 <Input
@@ -108,7 +117,7 @@ export function RegisterForm() {
           name="pin"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>PIN (imibare 5) / PIN (5 digits)</FormLabel>
+              <FormLabel>{t("pinLabel")}</FormLabel>
               <FormControl>
                 <PinInput value={field.value} onChange={field.onChange} />
               </FormControl>
@@ -121,7 +130,7 @@ export function RegisterForm() {
           name="confirmPin"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Subiramo PIN / Confirm PIN</FormLabel>
+              <FormLabel>{t("pinConfirmLabel")}</FormLabel>
               <FormControl>
                 <PinInput value={field.value} onChange={field.onChange} />
               </FormControl>
@@ -137,7 +146,7 @@ export function RegisterForm() {
           {isPending && (
             <Loader2 className="size-4 animate-spin" aria-hidden="true" />
           )}
-          Iyandikishe / Create account
+          {t("createAccount")}
         </Button>
       </form>
     </Form>

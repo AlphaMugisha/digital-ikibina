@@ -1,8 +1,12 @@
+import { getTranslations } from "next-intl/server";
 import { Logo } from "@/components/logo";
+import { LanguageSwitcher } from "@/components/language-switcher";
 
-export default function AuthLayout({
+export default async function AuthLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const t = await getTranslations("auth");
+
   return (
     <div className="grid min-h-dvh md:grid-cols-2">
       {/* Form column */}
@@ -12,6 +16,10 @@ export default function AuthLayout({
           className="absolute inset-x-0 top-0 -z-10 h-52 bg-gradient-to-br from-primary/15 via-accent/10 to-transparent md:hidden"
           aria-hidden="true"
         />
+        <div className="absolute right-4 top-4">
+          <LanguageSwitcher />
+        </div>
+
         <div className="flex justify-center pb-8 md:hidden">
           <Logo />
         </div>
@@ -30,11 +38,10 @@ export default function AuthLayout({
             DI
           </span>
           <p className="font-display max-w-sm text-2xl font-medium leading-snug tracking-tight text-primary-foreground">
-            Ibimina byawe, kuri telefoni yawe.
+            {t("visualHeadline")}
           </p>
           <p className="max-w-xs text-sm leading-relaxed text-primary-foreground/75">
-            Track contributions, loans, and share-outs — without the paper
-            notebook.
+            {t("visualSubtitle")}
           </p>
         </div>
       </div>

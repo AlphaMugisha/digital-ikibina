@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Fraunces, Geist_Mono, Plus_Jakarta_Sans } from "next/font/google";
+import { NextIntlClientProvider } from "next-intl";
+import { getLocale, getMessages, getTranslations } from "next-intl/server";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
@@ -20,41 +22,49 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const title = "Digital Ibimina — Ibimina byawe, kuri telefoni yawe";
-const description =
-  "Gukusanya, kubitsa, no kugurizanya byoroshye. Track contributions, loans, and share-outs — without the paper notebook.";
-
 const siteUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
   : "http://localhost:4000";
 
-export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
-  title,
-  description,
-  openGraph: {
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("metadata");
+  const locale = await getLocale();
+  const title = t("title");
+  const description = t("description");
+
+  return {
+    metadataBase: new URL(siteUrl),
     title,
     description,
-    siteName: "Digital Ibimina",
-    locale: "rw_RW",
-    type: "website",
-  },
-};
+    openGraph: {
+      title,
+      description,
+      siteName: "Digital Ibimina",
+      locale,
+      type: "website",
+    },
+  };
+}
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getLocale();
+  const messages = await getMessages();
+
   return (
     <html
-      lang="rw"
+      lang={locale}
       className={`${jakarta.variable} ${fraunces.variable} ${geistMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
-        {children}
-        <Toaster position="top-center" richColors />
+        <NextIntlClientProvider messages={messages}>
+          {children}
+          <Toaster position="top-center" richColors />
+        </NextIntlClientProvider>
       </body>
     </html>
   );

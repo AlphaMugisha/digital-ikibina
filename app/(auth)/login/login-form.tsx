@@ -1,10 +1,11 @@
 "use client";
 
-import { useTransition } from "react";
+import { useMemo, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -16,14 +17,18 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { PinInput } from "@/components/auth/pin-input";
-import { loginSchema, type LoginValues } from "@/lib/schemas";
+import { createLoginSchema, type LoginValues } from "@/lib/schemas";
 import { loginUser } from "./actions";
 
 export function LoginForm() {
   const [isPending, startTransition] = useTransition();
+  const t = useTranslations("auth");
+  const tValidation = useTranslations("validation");
+
+  const schema = useMemo(() => createLoginSchema(tValidation), [tValidation]);
 
   const form = useForm<LoginValues>({
-    resolver: zodResolver(loginSchema),
+    resolver: zodResolver(schema),
     defaultValues: {
       phone: "",
       pin: "",
@@ -45,7 +50,7 @@ export function LoginForm() {
           name="phone"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Telefoni / Phone number</FormLabel>
+              <FormLabel>{t("phoneLabel")}</FormLabel>
               <FormControl>
                 <Input
                   {...field}
@@ -53,7 +58,7 @@ export function LoginForm() {
                   type="tel"
                   inputMode="numeric"
                   autoComplete="tel"
-                  placeholder="078 123 4567"
+                  placeholder={t("phonePlaceholder")}
                 />
               </FormControl>
               <FormMessage />
@@ -65,12 +70,9 @@ export function LoginForm() {
           name="pin"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>PIN</FormLabel>
+              <FormLabel>{t("pinLabel")}</FormLabel>
               <FormControl>
-                <PinInput
-                  value={field.value}
-                  onChange={field.onChange}
-                />
+                <PinInput value={field.value} onChange={field.onChange} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -84,7 +86,7 @@ export function LoginForm() {
           {isPending && (
             <Loader2 className="size-4 animate-spin" aria-hidden="true" />
           )}
-          Injira / Sign in
+          {t("loginTitle")}
         </Button>
       </form>
     </Form>

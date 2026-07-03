@@ -1,33 +1,38 @@
 "use server";
 
 import bcrypt from "bcryptjs";
+import { getTranslations } from "next-intl/server";
 import { signIn } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { normalizeRwandanPhone } from "@/lib/phone";
-import { registerSchema, type RegisterValues } from "@/lib/schemas";
+import { createRegisterSchema, type RegisterValues } from "@/lib/schemas";
+import { getUserLocale } from "@/i18n/locale";
 
 export async function registerUser(
   values: RegisterValues,
 ): Promise<{ error: string } | undefined> {
-  const parsed = registerSchema.safeParse(values);
+  const [tValidation, tErrors] = await Promise.all([
+    getTranslations("validation"),
+    getTranslations("errors"),
+  ]);
+
+  const parsed = createRegisterSchema(tValidation).safeParse(values);
   if (!parsed.success) {
-    return { error: "Amakuru winjije ntiyemewe / Please check the form and try again" };
+    return { error: tErrors("formInvalid") };
   }
 
   const phone = normalizeRwandanPhone(parsed.data.phone);
   if (!phone) {
-    return { error: "Numero ya telefoni ntiyemewe / Invalid phone number" };
+    return { error: tValidation("phoneInvalid") };
   }
 
   const existing = await prisma.user.findUnique({ where: { phone } });
   if (existing) {
-    return {
-      error:
-        "Iyi numero isanzwe iyandikishije — injira / This phone number is already registered — sign in instead",
-    };
+    return { error: tErrors("phoneAlreadyExists") };
   }
 
   const pinHash = await bcrypt.hash(parsed.data.pin, 10);
+  const locale = await getUserLocale();
 
   try {
     await prisma.user.create({
@@ -36,15 +41,13 @@ export async function registerUser(
         phone,
         nationalId: parsed.data.nationalId || null,
         pinHash,
+        preferredLocale: locale,
       },
     });
   } catch {
     // Unique-constraint race on phone/nationalId or connection issue —
     // never leak Prisma internals to the user.
-    return {
-      error:
-        "Kwiyandikisha ntibyakunze — telefoni cyangwa indangamuntu bisanzwe byanditse / Registration failed — phone or national ID already in use",
-    };
+    return { error: tErrors("registrationFailed") };
   }
 
   // Sign in with the same credentials and land on the dashboard.
