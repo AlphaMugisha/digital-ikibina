@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { Logo } from "@/components/logo";
 import { LanguageSwitcher } from "@/components/language-switcher";
+import { CommunitySavingsIllustration } from "@/components/illustrations/community-savings";
 
 export default async function AuthLayout({
   children,
@@ -27,10 +28,8 @@ export default async function AuthLayout({
 
       {/* Visual column — desktop only */}
       <div className="relative hidden bg-primary md:block">
-        <div className="flex h-full flex-col items-center justify-center gap-6 px-12 text-center">
-          <span className="flex size-24 items-center justify-center rounded-3xl border border-primary-foreground/20 font-display text-4xl font-semibold text-primary-foreground">
-            DI
-          </span>
+        <div className="flex h-full flex-col items-center justify-center gap-8 px-12 text-center">
+          <CommunitySavingsIllustration className="h-48 w-auto" />
           <p className="font-display max-w-sm text-2xl font-medium leading-snug tracking-tight text-primary-foreground">
             {t("visualHeadline")}
           </p>
