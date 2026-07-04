@@ -11,11 +11,6 @@ export default async function AuthLayout({
     <div className="grid min-h-dvh md:grid-cols-2">
       {/* Form column */}
       <div className="relative flex flex-col px-6 py-10 md:justify-center md:px-12 md:py-0">
-        {/* Mobile-only warm gradient behind the logo */}
-        <div
-          className="absolute inset-x-0 top-0 -z-10 h-52 bg-gradient-to-br from-primary/15 via-accent/10 to-transparent md:hidden"
-          aria-hidden="true"
-        />
         <div className="absolute right-4 top-4">
           <LanguageSwitcher />
         </div>
@@ -31,10 +26,9 @@ export default async function AuthLayout({
       </div>
 
       {/* Visual column — desktop only */}
-      <div className="relative hidden overflow-hidden bg-gradient-to-br from-primary via-primary to-accent md:block">
-        <div className="grain-overlay" aria-hidden="true" />
+      <div className="relative hidden bg-primary md:block">
         <div className="flex h-full flex-col items-center justify-center gap-6 px-12 text-center">
-          <span className="flex size-24 items-center justify-center rounded-3xl bg-primary-foreground/10 font-display text-4xl font-semibold text-primary-foreground backdrop-blur-sm">
+          <span className="flex size-24 items-center justify-center rounded-3xl border border-primary-foreground/20 font-display text-4xl font-semibold text-primary-foreground">
             DI
           </span>
           <p className="font-display max-w-sm text-2xl font-medium leading-snug tracking-tight text-primary-foreground">

@@ -175,39 +175,6 @@
   }
 }
 
-/* Blurred gradient blobs behind the hero — emerald + amber, low opacity */
-.hero-blob {
-  position: absolute;
-  border-radius: 9999px;
-  filter: blur(80px);
-  pointer-events: none;
-  z-index: 0;
-}
-.hero-blob--emerald {
-  background: oklch(0.55 0.14 155 / 35%);
-}
-.hero-blob--amber {
-  background: oklch(0.75 0.15 75 / 35%);
-}
-
-.dark .hero-blob--emerald {
-  background: oklch(0.55 0.14 155 / 25%);
-}
-.dark .hero-blob--amber {
-  background: oklch(0.75 0.15 75 / 20%);
-}
-
-/* Subtle grain overlay, layered over the hero via an SVG feTurbulence data-URI */
-.grain-overlay {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-  opacity: 0.03;
-  mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-
 /* CSS-only entrance animations: scroll-driven where supported, honoring reduced motion */
 @keyframes fade-rise {
   from {

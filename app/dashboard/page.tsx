@@ -47,7 +47,7 @@ export default async function DashboardPage() {
   return (
     <div className="mx-auto max-w-2xl">
       {/* Greeting card */}
-      <div className="relative overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-primary/10 via-transparent to-accent/10 p-6">
+      <div className="rounded-2xl border border-border bg-primary/5 p-6">
         <h1 className="font-display text-2xl font-medium tracking-tight text-foreground">
           {t("greeting", { name: firstName })} 👋
         </h1>

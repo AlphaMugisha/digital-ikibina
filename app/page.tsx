@@ -35,18 +35,8 @@ export default async function Home() {
 
       <main className="flex-1">
         {/* Hero */}
-        <section className="relative isolate overflow-hidden">
-          <div
-            className="hero-blob hero-blob--emerald -left-24 -top-32 size-96"
-            aria-hidden="true"
-          />
-          <div
-            className="hero-blob hero-blob--amber -bottom-32 -right-16 size-96"
-            aria-hidden="true"
-          />
-          <div className="grain-overlay" aria-hidden="true" />
-
-          <div className="relative z-10 mx-auto max-w-6xl px-6 pb-20 pt-16 text-center md:px-8 md:pb-32 md:pt-24">
+        <section className="border-b border-border">
+          <div className="mx-auto max-w-6xl px-6 pb-20 pt-16 text-center md:px-8 md:pb-32 md:pt-24">
             <p className="hero-fade text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
               {t("eyebrow")}
             </p>
