@@ -116,6 +116,7 @@
     "meetingCreateFailed": "Starting the meeting failed — please try again",
     "contributionSaveFailed": "Saving the contribution failed — please try again",
     "invalidAmount": "Enter a valid amount greater than zero",
+    "actionFailed": "Something went wrong — please try again",
     "memberNotFound": "No member found with that phone number",
     "memberAlreadyInGroup": "This person is already a member of the group",
     "cannotChangeOwnRole": "You can't change your own role"

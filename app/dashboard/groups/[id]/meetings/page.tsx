@@ -7,8 +7,8 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { formatRWF } from "@/lib/money";
 import { canManageGroup } from "@/lib/permissions";
+import { getGroupWithMembership } from "@/lib/groups";
 import { Button } from "@/components/ui/button";
-import { Breadcrumbs } from "@/components/breadcrumbs";
 import { EmptyState } from "@/components/empty-state";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -25,17 +25,12 @@ export default async function MeetingsPage({
   if (!session?.user) redirect("/login");
 
   const { id: groupId } = await params;
+  const { group, membership } = await getGroupWithMembership(session.user.id, groupId);
+  if (!group || !membership) notFound();
 
-  const membership = await prisma.membership.findUnique({
-    where: { userId_groupId: { userId: session.user.id, groupId } },
-    include: { group: true },
-  });
-  if (!membership) notFound();
-
-  const [locale, t, tGroups, meetings] = await Promise.all([
+  const [locale, t, meetings] = await Promise.all([
     getLocale(),
     getTranslations("meetings"),
-    getTranslations("groups"),
     prisma.meeting.findMany({
       where: { groupId },
       orderBy: { date: "desc" },
@@ -49,31 +44,20 @@ export default async function MeetingsPage({
   });
 
   return (
-    <div className="mx-auto max-w-2xl">
-      <Breadcrumbs
-        items={[
-          { label: tGroups("title"), href: "/dashboard/groups" },
-          { label: membership.group.name, href: `/dashboard/groups/${groupId}` },
-          { label: t("title") },
-        ]}
-      />
-
-      <div className="flex items-center justify-between">
-        <h1 className="font-display text-2xl font-medium tracking-tight text-foreground">
-          {t("title")}
-        </h1>
-        {canManageGroup(membership) && (
+    <div>
+      {canManageGroup(membership) && (
+        <div className="flex justify-end">
           <Button asChild className="h-11 rounded-full">
             <Link href={`/dashboard/groups/${groupId}/meetings/new`}>
               <CalendarPlus className="size-5" aria-hidden="true" />
               {t("startMeeting")}
             </Link>
           </Button>
-        )}
-      </div>
+        </div>
+      )}
 
       {meetings.length === 0 ? (
-        <div className="mt-6">
+        <div className="mt-4">
           <EmptyState
             icon={ClipboardList}
             title={t("noMeetingsTitle")}
@@ -91,7 +75,7 @@ export default async function MeetingsPage({
           />
         </div>
       ) : (
-        <div className="mt-6 space-y-3">
+        <div className="mt-4 space-y-3">
           {meetings.map((meeting) => (
             <Link
               key={meeting.id}

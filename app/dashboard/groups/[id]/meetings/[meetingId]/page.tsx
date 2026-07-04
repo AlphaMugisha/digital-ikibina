@@ -40,10 +40,9 @@ export default async function MeetingRecordingPage({
   const membership = await getMembership(session.user.id, groupId);
   if (!membership) notFound();
 
-  const [locale, t, tGroups, memberships, contributions] = await Promise.all([
+  const [locale, t, memberships, contributions] = await Promise.all([
     getLocale(),
     getTranslations("meetings"),
-    getTranslations("groups"),
     prisma.membership.findMany({
       where: { groupId },
       include: { user: { select: { name: true, phone: true } } },
@@ -75,11 +74,10 @@ export default async function MeetingRecordingPage({
   const dateLabel = dateFormatter.format(meeting.date);
 
   return (
-    <div className="mx-auto max-w-2xl">
+    <div>
+      {/* The [id] layout already shows "Groups > {group name}" above this */}
       <Breadcrumbs
         items={[
-          { label: tGroups("title"), href: "/dashboard/groups" },
-          { label: meeting.group.name, href: `/dashboard/groups/${groupId}` },
           { label: t("title"), href: `/dashboard/groups/${groupId}/meetings` },
           { label: dateLabel },
         ]}

@@ -17,17 +17,17 @@ export async function createMeeting(
     return { ok: false, error: tErrors("notAuthorized") };
   }
 
-  const membership = await getMembership(session.user.id, groupId);
-  if (!canManageGroup(membership)) {
-    return { ok: false, error: tErrors("notAuthorized") };
-  }
-
   const parsedDate = new Date(date);
   if (Number.isNaN(parsedDate.getTime())) {
     return { ok: false, error: tErrors("formInvalid") };
   }
 
   try {
+    const membership = await getMembership(session.user.id, groupId);
+    if (!canManageGroup(membership)) {
+      return { ok: false, error: tErrors("notAuthorized") };
+    }
+
     const meeting = await prisma.meeting.create({
       data: {
         groupId,

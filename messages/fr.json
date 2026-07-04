@@ -116,6 +116,7 @@
     "meetingCreateFailed": "Le démarrage de la réunion a échoué — veuillez réessayer",
     "contributionSaveFailed": "L'enregistrement de la cotisation a échoué — veuillez réessayer",
     "invalidAmount": "Entrez un montant valide supérieur à zéro",
+    "actionFailed": "Une erreur est survenue — veuillez réessayer",
     "memberNotFound": "Aucun membre trouvé avec ce numéro",
     "memberAlreadyInGroup": "Cette personne est déjà membre du groupe",
     "cannotChangeOwnRole": "Vous ne pouvez pas modifier votre propre rôle"

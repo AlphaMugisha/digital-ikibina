@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { auth } from "@/auth";
-import { getMembership, canManageGroup } from "@/lib/permissions";
-import { prisma } from "@/lib/prisma";
+import { canManageGroup } from "@/lib/permissions";
+import { getGroupWithMembership } from "@/lib/groups";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { MeetingForm } from "./meeting-form";
 
@@ -21,31 +21,21 @@ export default async function NewMeetingPage({
   if (!session?.user) redirect("/login");
 
   const { id: groupId } = await params;
-
-  const [group, membership] = await Promise.all([
-    prisma.group.findUnique({ where: { id: groupId }, select: { name: true } }),
-    getMembership(session.user.id, groupId),
-  ]);
+  const { group, membership } = await getGroupWithMembership(session.user.id, groupId);
   if (!group || !membership) notFound();
-
-  console.error("[DEBUG new-meeting]", { userId: session.user.id, groupId, role: membership.role, canManage: canManageGroup(membership) });
 
   // Only LEADER/SECRETARY may start a meeting — send everyone else back to the list.
   if (!canManageGroup(membership)) {
     redirect(`/dashboard/groups/${groupId}/meetings`);
   }
 
-  const [t, tGroups] = await Promise.all([
-    getTranslations("meetings"),
-    getTranslations("groups"),
-  ]);
+  const t = await getTranslations("meetings");
 
   return (
     <div className="mx-auto max-w-md">
+      {/* The [id] layout already shows "Groups > {group name}" above this */}
       <Breadcrumbs
         items={[
-          { label: tGroups("title"), href: "/dashboard/groups" },
-          { label: group.name, href: `/dashboard/groups/${groupId}` },
           { label: t("title"), href: `/dashboard/groups/${groupId}/meetings` },
           { label: t("startTitle") },
         ]}

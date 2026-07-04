@@ -116,6 +116,7 @@
     "meetingCreateFailed": "Gutangira inama ntibyakunze — ongera ugerageze",
     "contributionSaveFailed": "Kubika umusanzu ntibyakunze — ongera ugerageze",
     "invalidAmount": "Andika umubare uruta zeru wemewe",
+    "actionFailed": "Hari ikibazo cyabaye — ongera ugerageze",
     "memberNotFound": "Nta munyamuryango ufite iyo numero",
     "memberAlreadyInGroup": "Uyu muntu asanzwe ari mu itsinda",
     "cannotChangeOwnRole": "Ntushobora guhindura uruhare rwawe"

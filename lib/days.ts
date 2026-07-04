@@ -24,3 +24,12 @@ export function weekdays(
     label: meetingDayLabel(day, locale, format),
   }));
 }
+
+/** The next calendar date (today counts) matching a Group.meetingDay (0-6). */
+export function nextMeetingDate(meetingDay: number, from: Date = new Date()): Date {
+  const result = new Date(from);
+  result.setHours(0, 0, 0, 0);
+  const diff = (meetingDay - result.getDay() + 7) % 7;
+  result.setDate(result.getDate() + diff);
+  return result;
+}
