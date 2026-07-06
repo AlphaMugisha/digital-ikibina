@@ -1,13 +1,16 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
+import Link from "next/link";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { formatRWF } from "@/lib/money";
 import { calculateMemberBalance } from "@/lib/balances";
+import { calculateAmountOwed } from "@/lib/loans";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { LoanStatusBadge } from "@/components/loans/loan-status-badge";
 
 const ROLE_BADGE: Record<string, string> = {
   LEADER: "bg-primary/10 text-primary",
@@ -50,7 +53,7 @@ export default async function MemberDetailPage({
   });
   if (!target) notFound();
 
-  const [locale, t, tGroups, balance, contributions] = await Promise.all([
+  const [locale, t, tGroups, balance, contributions, loans] = await Promise.all([
     getLocale(),
     getTranslations("members"),
     getTranslations("groups"),
@@ -61,9 +64,33 @@ export default async function MemberDetailPage({
       orderBy: { createdAt: "desc" },
       take: 20,
     }),
+    prisma.loan.findMany({
+      where: { membershipId: memberId },
+      include: { payments: true },
+      orderBy: { requestedAt: "desc" },
+    }),
   ]);
 
   const dateFormatter = new Intl.DateTimeFormat(locale, { day: "numeric", month: "short", year: "numeric" });
+
+  const now = new Date();
+  const loanRows = loans.map((loan) => {
+    const owed =
+      loan.status === "ACTIVE" ? calculateAmountOwed(loan, loan.payments, now) : null;
+    return { loan, owed };
+  });
+
+  const borrowedLifetime = loans
+    .filter((loan) => loan.takenAt !== null)
+    .reduce((sum, loan) => sum + loan.amount, 0);
+  const repaidLifetime = loans.reduce(
+    (sum, loan) => sum + loan.payments.reduce((s, p) => s + p.amount, 0),
+    0,
+  );
+  const outstandingNow = loanRows.reduce(
+    (sum, { owed }) => sum + (owed?.principalRemaining ?? 0),
+    0,
+  );
 
   return (
     <div>
@@ -149,7 +176,62 @@ export default async function MemberDetailPage({
         <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
           {t("loanHistory")}
         </h2>
-        <p className="mt-3 text-sm text-muted-foreground">{t("noLoansYet")}</p>
+
+        {loanRows.length === 0 ? (
+          <p className="mt-3 text-sm text-muted-foreground">{t("noLoansYet")}</p>
+        ) : (
+          <>
+            <div className="mt-3 grid grid-cols-3 gap-3">
+              <div className="rounded-2xl border border-border bg-card p-4">
+                <p className="text-xs font-medium text-muted-foreground">{t("borrowedLifetime")}</p>
+                <p className="mt-1 truncate font-display text-lg font-semibold text-foreground">
+                  {formatRWF(borrowedLifetime, locale)}
+                </p>
+              </div>
+              <div className="rounded-2xl border border-border bg-primary/5 p-4">
+                <p className="text-xs font-medium text-muted-foreground">{t("repaidLifetime")}</p>
+                <p className="mt-1 truncate font-display text-lg font-semibold text-primary">
+                  {formatRWF(repaidLifetime, locale)}
+                </p>
+              </div>
+              <div className="rounded-2xl border border-border bg-accent/10 p-4">
+                <p className="text-xs font-medium text-muted-foreground">{t("outstandingNow")}</p>
+                <p className="mt-1 truncate font-display text-lg font-semibold text-accent-foreground">
+                  {formatRWF(outstandingNow, locale)}
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-3 space-y-2">
+              {loanRows.map(({ loan, owed }) => (
+                <Link
+                  key={loan.id}
+                  href={`/dashboard/groups/${groupId}/loans/${loan.id}`}
+                  className="block rounded-xl border border-border bg-card px-4 py-3"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-foreground">
+                        {formatRWF(loan.amount, locale)}
+                      </p>
+                      <p className="truncate text-xs text-muted-foreground">
+                        {loan.purpose} · {dateFormatter.format(loan.requestedAt)}
+                      </p>
+                    </div>
+                    <div className="flex shrink-0 flex-col items-end gap-1">
+                      <LoanStatusBadge status={loan.status} />
+                      {owed && (
+                        <span className="text-xs font-semibold text-accent-foreground">
+                          {formatRWF(owed.totalOwed, locale)}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

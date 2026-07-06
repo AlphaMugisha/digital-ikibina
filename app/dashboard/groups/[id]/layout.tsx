@@ -1,5 +1,7 @@
+import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
+import { Settings } from "lucide-react";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { getGroupWithMembership } from "@/lib/groups";
@@ -35,9 +37,20 @@ export default async function GroupLayout({
           { label: group.name },
         ]}
       />
-      <h1 className="font-display text-2xl font-medium tracking-tight text-foreground">
-        {group.name}
-      </h1>
+      <div className="flex items-start justify-between gap-2">
+        <h1 className="font-display text-2xl font-medium tracking-tight text-foreground">
+          {group.name}
+        </h1>
+        {membership.role === "LEADER" && (
+          <Link
+            href={`/dashboard/groups/${groupId}/settings`}
+            aria-label={tGroups("settingsLink")}
+            className="mt-1 flex size-9 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-secondary hover:text-foreground"
+          >
+            <Settings className="size-5" aria-hidden="true" />
+          </Link>
+        )}
+      </div>
       <p className="mt-1 text-sm text-muted-foreground">
         {tGroups("membersCount", { count: memberCount })}
       </p>

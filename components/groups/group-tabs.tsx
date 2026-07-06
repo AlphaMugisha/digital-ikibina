@@ -8,12 +8,14 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 export function GroupTabs({ groupId }: { groupId: string }) {
   const pathname = usePathname();
   const t = useTranslations("groups");
+  const tLoans = useTranslations("loans");
 
   const base = `/dashboard/groups/${groupId}`;
   const tabs = [
     { value: "overview", href: base, label: t("tabOverview") },
     { value: "meetings", href: `${base}/meetings`, label: t("tabMeetings") },
     { value: "members", href: `${base}/members`, label: t("tabMembers") },
+    { value: "loans", href: `${base}/loans`, label: tLoans("title") },
   ] as const;
 
   const active =

@@ -21,16 +21,20 @@ model User {
 }
 
 model Group {
-  id                 String       @id @default(cuid())
-  name               String
-  contributionAmount Int          // RWF cents
-  meetingDay         Int          // 0=Sunday..6=Saturday
-  interestRate       Int          // basis points (500 = 5%)
-  cycleStart         DateTime
-  cycleEnd           DateTime
-  createdAt          DateTime     @default(now())
-  memberships        Membership[]
-  meetings           Meeting[]
+  id                  String       @id @default(cuid())
+  name                String
+  contributionAmount  Int          // RWF cents
+  meetingDay          Int          // 0=Sunday..6=Saturday
+  interestRate        Int          // basis points (500 = 5%)
+  cycleStart          DateTime
+  cycleEnd            DateTime
+  createdAt           DateTime     @default(now())
+  maxLoanMultiplier   Int          @default(300) // percentage: 300 = 3x member's contributions
+  maxLoanDurationDays Int          @default(90)
+  requireGuarantor    Boolean      @default(false)
+  requireApproval     Boolean      @default(true) // if false, loans auto-approve up to limits
+  memberships         Membership[]
+  meetings            Meeting[]
 }
 
 enum Role {
@@ -40,15 +44,16 @@ enum Role {
 }
 
 model Membership {
-  id            String         @id @default(cuid())
-  userId        String
-  groupId       String
-  role          Role           @default(MEMBER)
-  joinedAt      DateTime       @default(now())
-  user          User           @relation(fields: [userId], references: [id])
-  group         Group          @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  contributions Contribution[]
-  loans         Loan[]
+  id              String         @id @default(cuid())
+  userId          String
+  groupId         String
+  role            Role           @default(MEMBER)
+  joinedAt        DateTime       @default(now())
+  user            User           @relation(fields: [userId], references: [id])
+  group           Group          @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  contributions   Contribution[]
+  loans           Loan[]
+  guaranteedLoans Loan[]         @relation("GuarantorLoans")
   @@unique([userId, groupId])
   @@index([groupId])
 }
@@ -80,28 +85,43 @@ model Contribution {
 }
 
 enum LoanStatus {
-  ACTIVE
-  PAID
-  DEFAULTED
+  PENDING   // requested, awaiting approval
+  APPROVED  // approved but not yet disbursed
+  ACTIVE    // disbursed, being repaid
+  PAID      // fully repaid
+  REJECTED  // request denied
+  DEFAULTED // past due, marked as bad debt
 }
 
 model Loan {
-  id           String        @id @default(cuid())
-  membershipId String
-  amount       Int
-  interestRate Int
-  dueDate      DateTime
-  status       LoanStatus    @default(ACTIVE)
-  takenAt      DateTime      @default(now())
-  membership   Membership    @relation(fields: [membershipId], references: [id], onDelete: Cascade)
-  payments     LoanPayment[]
+  id              String        @id @default(cuid())
+  membershipId    String
+  amount          Int           // principal in cents
+  interestRate    Int           // basis points, snapshot from group at time of loan
+  dueDate         DateTime
+  status          LoanStatus    @default(PENDING)
+  purpose         String?
+  requestedAt     DateTime      @default(now())
+  approvedAt      DateTime?
+  approvedBy      String?       // userId of the leader who approved
+  rejectedAt      DateTime?
+  rejectedBy      String?
+  rejectionReason String?
+  takenAt         DateTime?     // when funds were disbursed
+  guarantorId     String?       // optional co-signer (another membershipId in the same group)
+  membership      Membership    @relation(fields: [membershipId], references: [id], onDelete: Cascade)
+  guarantor       Membership?   @relation("GuarantorLoans", fields: [guarantorId], references: [id])
+  payments        LoanPayment[]
+
   @@index([membershipId])
+  @@index([status])
 }
 
 model LoanPayment {
   id     String   @id @default(cuid())
   loanId String
   amount Int
+  note   String?
   paidAt DateTime @default(now())
   loan   Loan     @relation(fields: [loanId], references: [id], onDelete: Cascade)
   @@index([loanId])

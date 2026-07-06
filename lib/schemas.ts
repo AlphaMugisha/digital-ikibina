@@ -83,3 +83,79 @@ export function createGroupFormSchema(t: Translator) {
 }
 
 export type GroupFormValues = z.infer<ReturnType<typeof createGroupFormSchema>>;
+
+/** Loan request form — amount stays a string; the action converts to cents. */
+export function createLoanRequestSchema(t: Translator) {
+  return z.object({
+    amount: z.string().refine(
+      (v) => {
+        try {
+          return toCents(v) > 0;
+        } catch {
+          return false;
+        }
+      },
+      { message: t("amountInvalid") },
+    ),
+    purpose: z.string().trim().min(5, t("purposeTooShort")).max(200, t("purposeTooLong")),
+    dueDate: z.string().refine((v) => !Number.isNaN(Date.parse(v)), {
+      message: t("dateRequired"),
+    }),
+    guarantorId: z.string(),
+  });
+}
+
+export type LoanRequestValues = z.infer<ReturnType<typeof createLoanRequestSchema>>;
+
+export function createRejectLoanSchema(t: Translator) {
+  return z.object({
+    reason: z.string().trim().min(5, t("rejectionReasonTooShort")),
+  });
+}
+
+export type RejectLoanValues = z.infer<ReturnType<typeof createRejectLoanSchema>>;
+
+/** Record-payment form — amount stays a string; the action converts to cents. */
+export function createRecordPaymentSchema(t: Translator) {
+  return z.object({
+    amount: z.string().refine(
+      (v) => {
+        try {
+          return toCents(v) > 0;
+        } catch {
+          return false;
+        }
+      },
+      { message: t("amountInvalid") },
+    ),
+    paidAt: z.string().refine((v) => !Number.isNaN(Date.parse(v)), {
+      message: t("dateRequired"),
+    }),
+    note: z.string(),
+  });
+}
+
+export type RecordPaymentValues = z.infer<ReturnType<typeof createRecordPaymentSchema>>;
+
+export function createGroupPoliciesSchema(t: Translator) {
+  return z.object({
+    maxLoanMultiplier: z.string().refine(
+      (v) => {
+        const n = Number(v);
+        return Number.isFinite(n) && n >= 100 && n <= 500;
+      },
+      { message: t("multiplierRange") },
+    ),
+    maxLoanDurationDays: z.string().refine(
+      (v) => {
+        const n = Number(v);
+        return Number.isInteger(n) && n >= 30 && n <= 365;
+      },
+      { message: t("durationRange") },
+    ),
+    requireGuarantor: z.boolean(),
+    requireApproval: z.boolean(),
+  });
+}
+
+export type GroupPoliciesValues = z.infer<ReturnType<typeof createGroupPoliciesSchema>>;
