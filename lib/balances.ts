@@ -1,10 +1,9 @@
 import "server-only";
-import type { Prisma } from "@prisma/client";
-import { prisma } from "@/lib/prisma";
+import { prisma, type PrismaTransaction } from "@/lib/prisma";
 
 /** Anything with the same query surface as the default client — the
  * singleton, or a `tx` inside `prisma.$transaction(async (tx) => ...)`. */
-type Db = typeof prisma | Prisma.TransactionClient;
+type Db = typeof prisma | PrismaTransaction;
 
 export type MemberBalance = {
   totalContributed: number;

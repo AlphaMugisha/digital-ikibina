@@ -41,7 +41,7 @@ export function AddMemberDialog({ groupId }: { groupId: string }) {
         toast.error(result.error);
         return;
       }
-      toast.success(t("memberAdded"));
+      toast.success(result.data.invited ? t("invitationSent") : t("memberAdded"));
       setOpen(false);
       reset();
       router.refresh();

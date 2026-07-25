@@ -20,7 +20,7 @@ export async function addMemberToGroup(
   mode: "existing" | "new",
   name: string,
   phone: string,
-): Promise<ActionResult<{ membershipId: string }>> {
+): Promise<ActionResult<{ invited: boolean }>> {
   const [session, tErrors] = await Promise.all([auth(), getTranslations("errors")]);
   if (!session?.user?.id) {
     return { ok: false, error: tErrors("notAuthorized") };
@@ -37,29 +37,58 @@ export async function addMemberToGroup(
       return { ok: false, error: tErrors("formInvalid") };
     }
 
-    let userId: string;
-
+    // Existing users get invited and must accept before becoming a member;
+    // brand-new placeholder accounts can't log in to accept anything yet,
+    // so they're added directly (matches the pre-invitation behavior).
     if (mode === "existing") {
       const existingUser = await prisma.user.findUnique({ where: { phone: normalizedPhone } });
       if (!existingUser) {
         return { ok: false, error: tErrors("memberNotFound") };
       }
+
+      const alreadyMember = await prisma.membership.findUnique({
+        where: { userId_groupId: { userId: existingUser.id, groupId } },
+      });
+      if (alreadyMember) {
+        return { ok: false, error: tErrors("memberAlreadyInGroup") };
+      }
+
+      const existingInvitation = await prisma.invitation.findUnique({
+        where: { groupId_userId: { groupId, userId: existingUser.id } },
+      });
+      if (existingInvitation?.status === "PENDING") {
+        return { ok: false, error: tErrors("invitationAlreadyPending") };
+      }
+
+      await prisma.invitation.upsert({
+        where: { groupId_userId: { groupId, userId: existingUser.id } },
+        create: { groupId, userId: existingUser.id, invitedBy: session.user.id },
+        update: {
+          status: "PENDING",
+          invitedBy: session.user.id,
+          respondedAt: null,
+          createdAt: new Date(),
+        },
+      });
+
+      revalidatePath(`/dashboard/groups/${groupId}/members`);
+      return { ok: true, data: { invited: true } };
+    }
+
+    if (!name.trim()) {
+      return { ok: false, error: tErrors("formInvalid") };
+    }
+    let userId: string;
+    const existingUser = await prisma.user.findUnique({ where: { phone: normalizedPhone } });
+    if (existingUser) {
       userId = existingUser.id;
     } else {
-      if (!name.trim()) {
-        return { ok: false, error: tErrors("formInvalid") };
-      }
-      const existingUser = await prisma.user.findUnique({ where: { phone: normalizedPhone } });
-      if (existingUser) {
-        userId = existingUser.id;
-      } else {
-        // Placeholder account — no PIN yet. When this person registers with
-        // the same phone later, merging happens in Session 5.
-        const created = await prisma.user.create({
-          data: { name: name.trim(), phone: normalizedPhone, pinHash: "" },
-        });
-        userId = created.id;
-      }
+      // Placeholder account — no PIN yet. When this person registers with
+      // the same phone later, merging happens in Session 5.
+      const created = await prisma.user.create({
+        data: { name: name.trim(), phone: normalizedPhone, pinHash: "" },
+      });
+      userId = created.id;
     }
 
     const alreadyMember = await prisma.membership.findUnique({
@@ -69,13 +98,55 @@ export async function addMemberToGroup(
       return { ok: false, error: tErrors("memberAlreadyInGroup") };
     }
 
-    const membership = await prisma.membership.create({
+    await prisma.membership.create({
       data: { userId, groupId, role: "MEMBER" },
-      select: { id: true },
     });
 
     revalidatePath(`/dashboard/groups/${groupId}/members`);
-    return { ok: true, data: { membershipId: membership.id } };
+    return { ok: true, data: { invited: false } };
+  } catch {
+    return { ok: false, error: tErrors("actionFailed") };
+  }
+}
+
+export async function respondToInvitation(
+  invitationId: string,
+  accept: boolean,
+): Promise<ActionResult<null>> {
+  const [session, tErrors] = await Promise.all([auth(), getTranslations("errors")]);
+  if (!session?.user?.id) {
+    return { ok: false, error: tErrors("notAuthorized") };
+  }
+
+  try {
+    const invitation = await prisma.invitation.findUnique({ where: { id: invitationId } });
+    if (!invitation || invitation.userId !== session.user.id) {
+      return { ok: false, error: tErrors("notAuthorized") };
+    }
+    if (invitation.status !== "PENDING") {
+      return { ok: false, error: tErrors("invitationNotPending") };
+    }
+
+    if (accept) {
+      await prisma.$transaction([
+        prisma.invitation.update({
+          where: { id: invitationId },
+          data: { status: "ACCEPTED", respondedAt: new Date() },
+        }),
+        prisma.membership.create({
+          data: { userId: invitation.userId, groupId: invitation.groupId, role: "MEMBER" },
+        }),
+      ]);
+    } else {
+      await prisma.invitation.update({
+        where: { id: invitationId },
+        data: { status: "DECLINED", respondedAt: new Date() },
+      });
+    }
+
+    revalidatePath("/dashboard");
+    revalidatePath(`/dashboard/groups/${invitation.groupId}/members`);
+    return { ok: true, data: null };
   } catch {
     return { ok: false, error: tErrors("actionFailed") };
   }

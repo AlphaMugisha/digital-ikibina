@@ -136,7 +136,11 @@
     "loanNotApproved": "Ce prêt n'a pas encore été approuvé",
     "loanNotActive": "Ce prêt n'est pas actif",
     "amountExceedsOwed": "Cela dépasse le montant actuellement dû",
-    "loanActionFailed": "Cela n'a pas fonctionné — veuillez réessayer"
+    "loanActionFailed": "Cela n'a pas fonctionné — veuillez réessayer",
+    "databaseUnreachable": "Connexion échouée. Veuillez réessayer dans un instant.",
+    "unexpectedError": "Une erreur s'est produite. Veuillez réessayer.",
+    "invitationAlreadyPending": "Cette personne a déjà une invitation en attente",
+    "invitationNotPending": "Il a déjà été répondu à cette invitation"
   },
   "dashboard": {
     "greeting": "Bonjour, {name}",
@@ -147,7 +151,13 @@
     "yourGroups": "Vos groupes",
     "noGroupsTitle": "Vous n'avez pas encore de groupe",
     "noGroupsSubtitle": "Créez votre premier groupe — cela prend une minute.",
-    "createGroup": "Créer un groupe"
+    "createGroup": "Créer un groupe",
+    "invitationsTitle": "Invitations",
+    "invitedToJoin": "{leader} vous a invité(e) à rejoindre {group}",
+    "approve": "Accepter",
+    "decline": "Refuser",
+    "invitationAccepted": "Bienvenue dans {group} !",
+    "invitationDeclined": "Invitation refusée"
   },
   "groups": {
     "title": "Groupes",
@@ -211,7 +221,12 @@
     "notAuthorizedRedirect": "Seuls le responsable ou le secrétaire peuvent faire cela",
     "recordFor": "Cotisation de {name}",
     "membersRecorded": "Membres",
-    "phoneEndingIn": "se terminant par {digits}"
+    "phoneEndingIn": "se terminant par {digits}",
+    "decisionsTitle": "Ce que nous avons décidé",
+    "addDecision": "Ajouter une décision",
+    "decisionPlaceholder": "Qu'est-ce que le groupe a décidé ?",
+    "noDecisionsYet": "Aucune décision enregistrée",
+    "decisionAdded": "Décision enregistrée"
   },
   "members": {
     "addMember": "Ajouter un membre",
@@ -239,7 +254,10 @@
     "noLoansYet": "Aucun prêt pour l'instant",
     "borrowedLifetime": "Total emprunté",
     "repaidLifetime": "Total remboursé",
-    "outstandingNow": "Actuellement en cours"
+    "outstandingNow": "Actuellement en cours",
+    "invitationSent": "Invitation envoyée",
+    "pendingInvitationsTitle": "Invitations en attente",
+    "invitedOn": "Invité(e) le {date}"
   },
   "loans": {
     "title": "Prêts",
@@ -322,5 +340,11 @@
     "dangerZone": "Zone de danger",
     "dangerZoneHint": "Bientôt disponible",
     "policiesSaved": "Politiques de prêt mises à jour"
+  },
+  "chat": {
+    "title": "Discussion",
+    "messagePlaceholder": "Écrivez un message…",
+    "send": "Envoyer",
+    "noMessagesYet": "Aucun message pour le moment — dites bonjour !"
   }
 }

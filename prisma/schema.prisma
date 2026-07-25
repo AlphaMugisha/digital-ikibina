@@ -17,6 +17,7 @@ model User {
   preferredLocale String?      @default("rw")
   createdAt       DateTime     @default(now())
   memberships     Membership[]
+  invitations     Invitation[] @relation("InvitationRecipient")
   @@index([phone])
 }
 
@@ -35,6 +36,8 @@ model Group {
   requireApproval     Boolean      @default(true) // if false, loans auto-approve up to limits
   memberships         Membership[]
   meetings            Meeting[]
+  invitations         Invitation[]
+  messages            Message[]
 }
 
 enum Role {
@@ -54,6 +57,7 @@ model Membership {
   contributions   Contribution[]
   loans           Loan[]
   guaranteedLoans Loan[]         @relation("GuarantorLoans")
+  messages        Message[]
   @@unique([userId, groupId])
   @@index([groupId])
 }
@@ -67,7 +71,49 @@ model Meeting {
   createdAt      DateTime       @default(now())
   group          Group          @relation(fields: [groupId], references: [id], onDelete: Cascade)
   contributions  Contribution[]
+  decisions      MeetingDecision[]
   @@index([groupId, date])
+}
+
+model MeetingDecision {
+  id         String   @id @default(cuid())
+  meetingId  String
+  text       String
+  recordedBy String // userId of whoever recorded it
+  createdAt  DateTime @default(now())
+  meeting    Meeting  @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  @@index([meetingId])
+}
+
+model Message {
+  id           String     @id @default(cuid())
+  groupId      String
+  membershipId String
+  body         String
+  createdAt    DateTime   @default(now())
+  group        Group      @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  membership   Membership @relation(fields: [membershipId], references: [id], onDelete: Cascade)
+  @@index([groupId, createdAt])
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+}
+
+model Invitation {
+  id          String           @id @default(cuid())
+  groupId     String
+  userId      String
+  invitedBy   String // userId of the leader who sent the invitation
+  status      InvitationStatus @default(PENDING)
+  createdAt   DateTime         @default(now())
+  respondedAt DateTime?
+  group       Group            @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user        User             @relation("InvitationRecipient", fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([groupId, userId])
+  @@index([userId, status])
 }
 
 model Contribution {

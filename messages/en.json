@@ -136,7 +136,11 @@
     "loanNotApproved": "This loan hasn't been approved yet",
     "loanNotActive": "This loan isn't active",
     "amountExceedsOwed": "That's more than what's currently owed",
-    "loanActionFailed": "That didn't go through — please try again"
+    "loanActionFailed": "That didn't go through — please try again",
+    "databaseUnreachable": "Connection failed. Please try again in a moment.",
+    "unexpectedError": "Something went wrong. Please try again.",
+    "invitationAlreadyPending": "This person already has a pending invitation",
+    "invitationNotPending": "This invitation has already been responded to"
   },
   "dashboard": {
     "greeting": "Hello, {name}",
@@ -147,7 +151,13 @@
     "yourGroups": "Your groups",
     "noGroupsTitle": "You have no groups yet",
     "noGroupsSubtitle": "Start by creating your first group — it takes a minute.",
-    "createGroup": "Create a group"
+    "createGroup": "Create a group",
+    "invitationsTitle": "Invitations",
+    "invitedToJoin": "{leader} invited you to join {group}",
+    "approve": "Approve",
+    "decline": "Decline",
+    "invitationAccepted": "Welcome to {group}!",
+    "invitationDeclined": "Invitation declined"
   },
   "groups": {
     "title": "Groups",
@@ -211,7 +221,12 @@
     "notAuthorizedRedirect": "Only the leader or secretary can do that",
     "recordFor": "Contribution for {name}",
     "membersRecorded": "Members",
-    "phoneEndingIn": "ending in {digits}"
+    "phoneEndingIn": "ending in {digits}",
+    "decisionsTitle": "What we agreed on",
+    "addDecision": "Add a decision",
+    "decisionPlaceholder": "What did the group agree on?",
+    "noDecisionsYet": "No decisions recorded yet",
+    "decisionAdded": "Decision recorded"
   },
   "members": {
     "addMember": "Add member",
@@ -239,7 +254,10 @@
     "noLoansYet": "No loans yet",
     "borrowedLifetime": "Total borrowed",
     "repaidLifetime": "Total repaid",
-    "outstandingNow": "Currently outstanding"
+    "outstandingNow": "Currently outstanding",
+    "invitationSent": "Invitation sent",
+    "pendingInvitationsTitle": "Pending invitations",
+    "invitedOn": "Invited on {date}"
   },
   "loans": {
     "title": "Loans",
@@ -322,5 +340,11 @@
     "dangerZone": "Danger zone",
     "dangerZoneHint": "Coming in a future session",
     "policiesSaved": "Loan policies updated"
+  },
+  "chat": {
+    "title": "Chat",
+    "messagePlaceholder": "Write a message…",
+    "send": "Send",
+    "noMessagesYet": "No messages yet — say hello!"
   }
 }

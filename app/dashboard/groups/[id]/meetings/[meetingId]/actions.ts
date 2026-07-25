@@ -92,6 +92,50 @@ export async function recordContribution(
   }
 }
 
+export async function addMeetingDecision(
+  meetingId: string,
+  text: string,
+): Promise<ActionResult<{ id: string; text: string; createdAt: string; recordedBy: string }>> {
+  const [session, tErrors] = await Promise.all([auth(), getTranslations("errors")]);
+  if (!session?.user?.id) {
+    return { ok: false, error: tErrors("notAuthorized") };
+  }
+
+  const trimmed = text.trim();
+  if (trimmed.length < 3) {
+    return { ok: false, error: tErrors("formInvalid") };
+  }
+
+  try {
+    const meeting = await getMeetingWithGroup(meetingId);
+    if (!meeting) {
+      return { ok: false, error: tErrors("notAuthorized") };
+    }
+
+    const actingMembership = await getMembership(session.user.id, meeting.groupId);
+    if (!canManageGroup(actingMembership)) {
+      return { ok: false, error: tErrors("notAuthorized") };
+    }
+
+    const decision = await prisma.meetingDecision.create({
+      data: { meetingId, text: trimmed, recordedBy: session.user.id },
+    });
+
+    revalidatePath(`/dashboard/groups/${meeting.groupId}/meetings/${meetingId}`);
+    return {
+      ok: true,
+      data: {
+        id: decision.id,
+        text: decision.text,
+        createdAt: decision.createdAt.toISOString(),
+        recordedBy: decision.recordedBy,
+      },
+    };
+  } catch {
+    return { ok: false, error: tErrors("actionFailed") };
+  }
+}
+
 export async function endMeeting(
   meetingId: string,
   notes: string,

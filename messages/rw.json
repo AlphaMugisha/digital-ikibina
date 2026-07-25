@@ -136,7 +136,11 @@
     "loanNotApproved": "Iyi nguzanyo ntiyaremejwe",
     "loanNotActive": "Iyi nguzanyo ntikora",
     "amountExceedsOwed": "Ni byinshi kurusha uko umwenda ungana",
-    "loanActionFailed": "Ibi ntibyakunze — ongera ugerageze"
+    "loanActionFailed": "Ibi ntibyakunze — ongera ugerageze",
+    "databaseUnreachable": "Ntibishoboye kwihuza. Ongera ugerageze mu kanya.",
+    "unexpectedError": "Hari ikitagenze neza. Ongera ugerageze.",
+    "invitationAlreadyPending": "Uyu muntu asanzwe afite ubutumire bwo gutegereza",
+    "invitationNotPending": "Ubu butumire bwasubijweho"
   },
   "dashboard": {
     "greeting": "Muraho, {name}",
@@ -147,7 +151,13 @@
     "yourGroups": "Amatsinda yawe",
     "noGroupsTitle": "Nta tsinda ufite",
     "noGroupsSubtitle": "Tangira ukore itsinda ryawe rya mbere — bifata umunota umwe.",
-    "createGroup": "Kora itsinda"
+    "createGroup": "Kora itsinda",
+    "invitationsTitle": "Ubutumire",
+    "invitedToJoin": "{leader} yakutumiye kwinjira muri {group}",
+    "approve": "Emeza",
+    "decline": "Anga",
+    "invitationAccepted": "Murakaza neza muri {group}!",
+    "invitationDeclined": "Ubutumire bwanzwe"
   },
   "groups": {
     "title": "Amatsinda",
@@ -211,7 +221,12 @@
     "notAuthorizedRedirect": "Umuyobozi cyangwa umunyamabanga gusa ni bo bashobora gukora iki",
     "recordFor": "Umusanzu wa {name}",
     "membersRecorded": "Abanyamuryango",
-    "phoneEndingIn": "irangira kuri {digits}"
+    "phoneEndingIn": "irangira kuri {digits}",
+    "decisionsTitle": "Ibyo twumvikanyeho",
+    "addDecision": "Ongeraho icyemezo",
+    "decisionPlaceholder": "Ni iki itsinda ryumvikanyeho?",
+    "noDecisionsYet": "Nta cyemezo cyanditswe",
+    "decisionAdded": "Icyemezo cyanditswe"
   },
   "members": {
     "addMember": "Ongeraho umunyamuryango",
@@ -239,7 +254,10 @@
     "noLoansYet": "Nta nguzanyo ifite",
     "borrowedLifetime": "Igiteranyo yigeze yaka",
     "repaidLifetime": "Igiteranyo yishyuye",
-    "outstandingNow": "Ibisigaye ubu"
+    "outstandingNow": "Ibisigaye ubu",
+    "invitationSent": "Ubutumire bwoherejwe",
+    "pendingInvitationsTitle": "Ubutumire butegereje",
+    "invitedOn": "Yatumiwe ku itariki {date}"
   },
   "loans": {
     "title": "Inguzanyo",
@@ -322,5 +340,11 @@
     "dangerZone": "Agace k'akaga",
     "dangerZoneHint": "Biraza mu gihe kizaza",
     "policiesSaved": "Amabwiriza y'inguzanyo yavuguruwe"
+  },
+  "chat": {
+    "title": "Ikiganiro",
+    "messagePlaceholder": "Andika ubutumwa…",
+    "send": "Ohereza",
+    "noMessagesYet": "Nta butumwa burahari — vugisha itsinda ryawe!"
   }
 }

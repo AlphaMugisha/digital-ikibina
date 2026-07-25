@@ -8,6 +8,7 @@ import { formatRWF } from "@/lib/money";
 import { Button } from "@/components/ui/button";
 import { GroupCard } from "@/components/groups/group-card";
 import { PiggyBankIllustration } from "@/components/illustrations/piggy-bank";
+import { PendingInvitations } from "@/components/dashboard/pending-invitations";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -15,7 +16,7 @@ export default async function DashboardPage() {
 
   const userId = session.user.id;
 
-  const [locale, t, memberships, savings, pendingMeetings] = await Promise.all([
+  const [locale, t, memberships, savings, pendingMeetings, invitations] = await Promise.all([
     getLocale(),
     getTranslations("dashboard"),
     prisma.membership.findMany({
@@ -37,7 +38,29 @@ export default async function DashboardPage() {
         contributions: { none: { membership: { userId } } },
       },
     }),
+    prisma.invitation.findMany({
+      where: { userId, status: "PENDING" },
+      include: {
+        group: { select: { name: true } },
+      },
+      orderBy: { createdAt: "desc" },
+    }),
   ]);
+
+  const inviterIds = [...new Set(invitations.map((i) => i.invitedBy))];
+  const inviters = inviterIds.length
+    ? await prisma.user.findMany({
+        where: { id: { in: inviterIds } },
+        select: { id: true, name: true },
+      })
+    : [];
+  const inviterNameById = new Map(inviters.map((u) => [u.id, u.name]));
+
+  const invitationRows = invitations.map((invitation) => ({
+    id: invitation.id,
+    groupName: invitation.group.name,
+    inviterName: inviterNameById.get(invitation.invitedBy) ?? "",
+  }));
 
   const firstName = (session.user.name ?? "").split(" ")[0] || "there";
   const today = new Intl.DateTimeFormat(locale, { weekday: "long" }).format(
@@ -46,6 +69,8 @@ export default async function DashboardPage() {
 
   return (
     <div className="mx-auto max-w-2xl">
+      {invitationRows.length > 0 && <PendingInvitations invitations={invitationRows} />}
+
       {/* Greeting card */}
       <div className="rounded-2xl border border-border bg-primary/5 p-6">
         <h1 className="font-display text-2xl font-medium tracking-tight text-foreground">

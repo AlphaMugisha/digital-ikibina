@@ -34,7 +34,9 @@ export default async function MembersPage({
   const { group, membership } = await getGroupWithMembership(session.user.id, groupId);
   if (!group || !membership) notFound();
 
-  const [locale, t, tGroups, memberships, contributionTotals, activeLoanTotals] =
+  const canManage = canManageGroup(membership);
+
+  const [locale, t, tGroups, memberships, contributionTotals, activeLoanTotals, pendingInvitations] =
     await Promise.all([
       getLocale(),
       getTranslations("members"),
@@ -54,6 +56,13 @@ export default async function MembersPage({
         where: { membership: { groupId }, status: "ACTIVE" },
         _sum: { amount: true },
       }),
+      canManage
+        ? prisma.invitation.findMany({
+            where: { groupId, status: "PENDING" },
+            include: { user: { select: { name: true, phone: true } } },
+            orderBy: { createdAt: "desc" },
+          })
+        : Promise.resolve([]),
     ]);
 
   const contributedByMembership = new Map(
@@ -63,13 +72,36 @@ export default async function MembersPage({
     activeLoanTotals.map((row) => [row.membershipId, row._sum.amount ?? 0]),
   );
 
-  const canManage = canManageGroup(membership);
+  const dateFormatter = new Intl.DateTimeFormat(locale, { day: "numeric", month: "short" });
 
   return (
     <div>
       {canManage && (
         <div className="flex justify-end">
           <AddMemberDialog groupId={groupId} />
+        </div>
+      )}
+
+      {canManage && pendingInvitations.length > 0 && (
+        <div className="mt-4">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+            {t("pendingInvitationsTitle")}
+          </h2>
+          <ul className="mt-3 space-y-2">
+            {pendingInvitations.map((invitation) => (
+              <li
+                key={invitation.id}
+                className="flex items-center justify-between rounded-xl border border-dashed border-border bg-card px-4 py-3"
+              >
+                <span className="truncate text-sm font-medium text-foreground">
+                  {invitation.user.name}
+                </span>
+                <span className="shrink-0 text-xs text-muted-foreground">
+                  {t("invitedOn", { date: dateFormatter.format(invitation.createdAt) })}
+                </span>
+              </li>
+            ))}
+          </ul>
         </div>
       )}
 

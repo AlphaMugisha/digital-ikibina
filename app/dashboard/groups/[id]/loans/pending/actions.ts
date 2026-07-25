@@ -2,9 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { getTranslations } from "next-intl/server";
-import type { Prisma } from "@prisma/client";
 import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
+import { prisma, type PrismaTransaction } from "@/lib/prisma";
 import { calculateGroupSummary } from "@/lib/balances";
 import { calculateBorrowingLimit, calculateGroupLendingCapacity } from "@/lib/loans";
 import { createRejectLoanSchema } from "@/lib/schemas";
@@ -183,7 +182,7 @@ export async function disburseLoan(loanId: string): Promise<ActionResult<null>> 
   }
 }
 
-async function loadLoanForDecisionTx(tx: Prisma.TransactionClient, loanId: string) {
+async function loadLoanForDecisionTx(tx: PrismaTransaction, loanId: string) {
   return tx.loan.findUnique({
     where: { id: loanId },
     select: {

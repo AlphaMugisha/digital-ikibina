@@ -1,9 +1,15 @@
 "use server";
 
+import { Prisma } from "@prisma/client";
 import { AuthError } from "next-auth";
 import { getTranslations } from "next-intl/server";
 import { signIn } from "@/auth";
 import { createLoginSchema, type LoginValues } from "@/lib/schemas";
+
+function isDatabaseUnreachable(err: unknown): boolean {
+  if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P1001") return true;
+  return err instanceof Prisma.PrismaClientInitializationError;
+}
 
 export async function loginUser(
   values: LoginValues,
@@ -28,6 +34,10 @@ export async function loginUser(
       redirectTo: "/dashboard",
     });
   } catch (error) {
+    if (isDatabaseUnreachable(error)) {
+      console.error("[loginUser] DB error:", error);
+      return { error: tErrors("databaseUnreachable") };
+    }
     if (error instanceof AuthError) {
       return { error: invalidCredentials };
     }

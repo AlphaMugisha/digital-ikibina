@@ -63,7 +63,7 @@ export function MeetingRecorder({
   }
 
   return (
-    <div className="pb-28">
+    <div>
       <ul className="space-y-2">
         {members.map((member) => {
           const recorded = member.amountCents > 0;

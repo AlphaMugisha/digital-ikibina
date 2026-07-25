@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { getMembership, canManageGroup } from "@/lib/permissions";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { MeetingRecorder, type MemberRowData } from "./meeting-recorder";
+import { MeetingDecisions } from "./meeting-decisions";
 
 export async function generateMetadata({
   params,
@@ -40,7 +41,7 @@ export default async function MeetingRecordingPage({
   const membership = await getMembership(session.user.id, groupId);
   if (!membership) notFound();
 
-  const [locale, t, memberships, contributions] = await Promise.all([
+  const [locale, t, memberships, contributions, decisions] = await Promise.all([
     getLocale(),
     getTranslations("meetings"),
     prisma.membership.findMany({
@@ -49,6 +50,7 @@ export default async function MeetingRecordingPage({
       orderBy: { joinedAt: "asc" },
     }),
     prisma.contribution.findMany({ where: { meetingId } }),
+    prisma.meetingDecision.findMany({ where: { meetingId }, orderBy: { createdAt: "asc" } }),
   ]);
 
   const contributionByMembership = new Map(
@@ -74,7 +76,7 @@ export default async function MeetingRecordingPage({
   const dateLabel = dateFormatter.format(meeting.date);
 
   return (
-    <div>
+    <div className="pb-28">
       {/* The [id] layout already shows "Groups > {group name}" above this */}
       <Breadcrumbs
         items={[
@@ -99,6 +101,17 @@ export default async function MeetingRecordingPage({
           canManage={canManageGroup(membership)}
         />
       </div>
+
+      <MeetingDecisions
+        meetingId={meetingId}
+        decisions={decisions.map((d) => ({
+          id: d.id,
+          text: d.text,
+          createdAt: d.createdAt.toISOString(),
+        }))}
+        canManage={canManageGroup(membership)}
+        locale={locale}
+      />
     </div>
   );
 }
