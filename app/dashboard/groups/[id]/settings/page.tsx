@@ -40,6 +40,13 @@ export default async function GroupSettingsPage({
         {t("settingsTitle")}
       </h1>
 
+      <div className="mt-4 rounded-2xl border border-border bg-primary/5 p-4">
+        <p className="text-xs font-medium text-muted-foreground">{t("interestRateLabel")}</p>
+        <p className="mt-1 font-display text-2xl font-semibold text-primary">
+          {(group.interestRate / 100).toFixed(2)}%
+        </p>
+      </div>
+
       <div className="mt-6">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
           {t("loanPolicies")}
@@ -48,6 +55,8 @@ export default async function GroupSettingsPage({
           <GroupPoliciesForm
             groupId={groupId}
             defaultValues={{
+              minContributionAmount: String(group.minContributionAmount / 100),
+              maxContributionAmount: String(group.maxContributionAmount / 100),
               maxLoanMultiplier: String(group.maxLoanMultiplier),
               maxLoanDurationDays: String(group.maxLoanDurationDays),
               requireGuarantor: group.requireGuarantor,

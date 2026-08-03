@@ -23,7 +23,8 @@ type GroupCardProps = {
   group: {
     id: string;
     name: string;
-    contributionAmount: number;
+    minContributionAmount: number;
+    maxContributionAmount: number;
     meetingDay: number;
   };
   memberCount: number;
@@ -58,7 +59,12 @@ export async function GroupCard({ group, memberCount, role }: GroupCardProps) {
           )}
         </div>
         <p className="mt-1 text-sm font-semibold text-primary">
-          {formatRWF(group.contributionAmount, locale)}
+          {group.minContributionAmount === group.maxContributionAmount
+            ? formatRWF(group.minContributionAmount, locale)
+            : t("contributionRange", {
+                min: formatRWF(group.minContributionAmount, locale),
+                max: formatRWF(group.maxContributionAmount, locale),
+              })}
           <span className="font-normal text-muted-foreground"> {t("perWeek")}</span>
         </p>
         <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">

@@ -37,7 +37,8 @@ export function GroupForm() {
     resolver: zodResolver(schema),
     defaultValues: {
       name: "",
-      contributionAmount: "",
+      minContributionAmount: "",
+      maxContributionAmount: "",
       meetingDay: "6",
       interestRate: "5",
       cycleStart: "",
@@ -97,30 +98,57 @@ export function GroupForm() {
           <p className="text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
             {t("sectionMoney")}
           </p>
-          <FormField
-            control={form.control}
-            name="contributionAmount"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{t("contributionLabel")}</FormLabel>
-                <FormControl>
-                  <div className="relative">
-                    <Input
-                      {...field}
-                      className="h-12 rounded-xl pr-14 text-base"
-                      type="text"
-                      inputMode="numeric"
-                      placeholder="2000"
-                    />
-                    <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-sm font-medium text-muted-foreground">
-                      RWF
-                    </span>
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <div className="grid gap-5 sm:grid-cols-2">
+            <FormField
+              control={form.control}
+              name="minContributionAmount"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("minContributionLabel")}</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Input
+                        {...field}
+                        className="h-12 rounded-xl pr-14 text-base"
+                        type="text"
+                        inputMode="numeric"
+                        placeholder="2000"
+                      />
+                      <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-sm font-medium text-muted-foreground">
+                        RWF
+                      </span>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="maxContributionAmount"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("maxContributionLabel")}</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Input
+                        {...field}
+                        className="h-12 rounded-xl pr-14 text-base"
+                        type="text"
+                        inputMode="numeric"
+                        placeholder="5000"
+                      />
+                      <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-sm font-medium text-muted-foreground">
+                        RWF
+                      </span>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          <p className="text-xs text-muted-foreground">{t("contributionRangeHint")}</p>
           <FormField
             control={form.control}
             name="interestRate"

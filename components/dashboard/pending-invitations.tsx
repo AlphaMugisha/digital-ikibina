@@ -10,6 +10,7 @@ import { respondToInvitation } from "@/app/dashboard/groups/[id]/members/actions
 
 export type InvitationRow = {
   id: string;
+  groupId: string;
   groupName: string;
   inviterName: string;
 };
@@ -37,7 +38,13 @@ export function PendingInvitations({ invitations: initial }: { invitations: Invi
       );
       setInvitations((prev) => prev.filter((i) => i.id !== invitation.id));
       setPendingId(null);
-      router.refresh();
+      if (accept) {
+        // Send them to the constitution first, so new members read the
+        // group's rules before doing anything else.
+        router.push(`/dashboard/groups/${invitation.groupId}/constitution`);
+      } else {
+        router.refresh();
+      }
     });
   }
 

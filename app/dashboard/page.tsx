@@ -41,7 +41,7 @@ export default async function DashboardPage() {
     prisma.invitation.findMany({
       where: { userId, status: "PENDING" },
       include: {
-        group: { select: { name: true } },
+        group: { select: { id: true, name: true } },
       },
       orderBy: { createdAt: "desc" },
     }),
@@ -58,6 +58,7 @@ export default async function DashboardPage() {
 
   const invitationRows = invitations.map((invitation) => ({
     id: invitation.id,
+    groupId: invitation.group.id,
     groupName: invitation.group.name,
     inviterName: inviterNameById.get(invitation.invitedBy) ?? "",
   }));

@@ -51,7 +51,17 @@ export function createGroupFormSchema(t: Translator) {
   return z
     .object({
       name: z.string().trim().min(3, t("groupNameTooShort")),
-      contributionAmount: z.string().refine(
+      minContributionAmount: z.string().refine(
+        (v) => {
+          try {
+            return toCents(v) > 0;
+          } catch {
+            return false;
+          }
+        },
+        { message: t("amountInvalid") },
+      ),
+      maxContributionAmount: z.string().refine(
         (v) => {
           try {
             return toCents(v) > 0;
@@ -79,7 +89,17 @@ export function createGroupFormSchema(t: Translator) {
     .refine((data) => Date.parse(data.cycleEnd) > Date.parse(data.cycleStart), {
       path: ["cycleEnd"],
       message: t("endDateAfterStart"),
-    });
+    })
+    .refine(
+      (data) => {
+        try {
+          return toCents(data.maxContributionAmount) >= toCents(data.minContributionAmount);
+        } catch {
+          return false;
+        }
+      },
+      { path: ["maxContributionAmount"], message: t("maxBelowMin") },
+    );
 }
 
 export type GroupFormValues = z.infer<ReturnType<typeof createGroupFormSchema>>;
@@ -138,24 +158,114 @@ export function createRecordPaymentSchema(t: Translator) {
 export type RecordPaymentValues = z.infer<ReturnType<typeof createRecordPaymentSchema>>;
 
 export function createGroupPoliciesSchema(t: Translator) {
-  return z.object({
-    maxLoanMultiplier: z.string().refine(
-      (v) => {
-        const n = Number(v);
-        return Number.isFinite(n) && n >= 100 && n <= 500;
+  return z
+    .object({
+      minContributionAmount: z.string().refine(
+        (v) => {
+          try {
+            return toCents(v) > 0;
+          } catch {
+            return false;
+          }
+        },
+        { message: t("amountInvalid") },
+      ),
+      maxContributionAmount: z.string().refine(
+        (v) => {
+          try {
+            return toCents(v) > 0;
+          } catch {
+            return false;
+          }
+        },
+        { message: t("amountInvalid") },
+      ),
+      maxLoanMultiplier: z.string().refine(
+        (v) => {
+          const n = Number(v);
+          return Number.isFinite(n) && n >= 100 && n <= 500;
+        },
+        { message: t("multiplierRange") },
+      ),
+      maxLoanDurationDays: z.string().refine(
+        (v) => {
+          const n = Number(v);
+          return Number.isInteger(n) && n >= 30 && n <= 365;
+        },
+        { message: t("durationRange") },
+      ),
+      requireGuarantor: z.boolean(),
+      requireApproval: z.boolean(),
+    })
+    .refine(
+      (data) => {
+        try {
+          return toCents(data.maxContributionAmount) >= toCents(data.minContributionAmount);
+        } catch {
+          return false;
+        }
       },
-      { message: t("multiplierRange") },
-    ),
-    maxLoanDurationDays: z.string().refine(
-      (v) => {
-        const n = Number(v);
-        return Number.isInteger(n) && n >= 30 && n <= 365;
-      },
-      { message: t("durationRange") },
-    ),
-    requireGuarantor: z.boolean(),
-    requireApproval: z.boolean(),
-  });
+      { path: ["maxContributionAmount"], message: t("maxBelowMin") },
+    );
 }
 
 export type GroupPoliciesValues = z.infer<ReturnType<typeof createGroupPoliciesSchema>>;
+
+export function createCancelShareOutSchema(t: Translator) {
+  return z.object({
+    reason: z.string().trim().min(5, t("rejectionReasonTooShort")),
+  });
+}
+
+export type CancelShareOutValues = z.infer<ReturnType<typeof createCancelShareOutSchema>>;
+
+/** New-cycle dates form for completing a share-out — same shape/rules as the group cycle fields. */
+export function createCompleteShareOutSchema(t: Translator) {
+  return z
+    .object({
+      cycleStart: z.string().refine((v) => !Number.isNaN(Date.parse(v)), {
+        message: t("dateRequired"),
+      }),
+      cycleEnd: z.string().refine((v) => !Number.isNaN(Date.parse(v)), {
+        message: t("dateRequired"),
+      }),
+    })
+    .refine((data) => Date.parse(data.cycleEnd) > Date.parse(data.cycleStart), {
+      path: ["cycleEnd"],
+      message: t("endDateAfterStart"),
+    });
+}
+
+export type CompleteShareOutValues = z.infer<ReturnType<typeof createCompleteShareOutSchema>>;
+
+export function createConstitutionRulesSchema(t: Translator) {
+  return z.object({
+    latenessGraceDays: z.string().refine(
+      (v) => {
+        const n = Number(v);
+        return Number.isInteger(n) && n >= 0 && n <= 90;
+      },
+      { message: t("graceDaysRange") },
+    ),
+    lateFeeType: z.enum(["NONE", "FIXED", "PERCENT"]),
+    lateFeeAmount: z.string().refine(
+      (v) => {
+        const n = Number(v);
+        return Number.isFinite(n) && n >= 0;
+      },
+      { message: t("amountInvalid") },
+    ),
+    absenceFineAmount: z.string().refine(
+      (v) => {
+        try {
+          return toCents(v) >= 0;
+        } catch {
+          return false;
+        }
+      },
+      { message: t("amountInvalid") },
+    ),
+  });
+}
+
+export type ConstitutionRulesValues = z.infer<ReturnType<typeof createConstitutionRulesSchema>>;

@@ -1,3 +1,4 @@
+import type { LateFeeType } from "@prisma/client";
 import type { GroupSummary } from "@/lib/balances";
 
 const MS_PER_DAY = 86_400_000;
@@ -23,6 +24,8 @@ export type LoanForOwed = {
   amount: number; // principal, cents
   interestRate: number; // basis points
   takenAt: Date | null;
+  /** Late fees accrued so far (Loan.lateFeesAccrued) — defaults to 0 for callers that don't track fees. */
+  lateFeesAccrued?: number;
 };
 
 export type PaymentForOwed = {
@@ -30,7 +33,7 @@ export type PaymentForOwed = {
 };
 
 export type AmountOwed = {
-  /** Principal still unpaid, after payments are applied to interest first. */
+  /** Principal still unpaid, after payments are applied fees-first, then interest. */
   principalRemaining: number;
   /**
    * Gross interest that has accrued as of `asOfDate` — a fact about time
@@ -38,7 +41,9 @@ export type AmountOwed = {
    * still owed, which is folded into `totalOwed` below.)
    */
   interestAccrued: number;
-  /** What the borrower actually still owes today: principalRemaining + unpaid interest. */
+  /** Late fees still unpaid. */
+  feesRemaining: number;
+  /** What the borrower actually still owes today: principalRemaining + unpaid interest + unpaid fees. */
   totalOwed: number;
   daysElapsed: number;
 };
@@ -46,8 +51,7 @@ export type AmountOwed = {
 /**
  * Current amount owed on a loan as of a given date.
  * Interest only starts accruing once the loan is disbursed (`takenAt` set).
- * Payments are applied interest-first, then principal — the standard
- * allocation order for simple-interest loans.
+ * Payments are applied fees-first, then interest, then principal.
  */
 export function calculateAmountOwed(
   loan: LoanForOwed,
@@ -61,18 +65,23 @@ export function calculateAmountOwed(
   const interestAccrued = loan.takenAt
     ? calculateInterest(loan.amount, loan.interestRate, daysElapsed)
     : 0;
+  const feesAccrued = loan.lateFeesAccrued ?? 0;
 
   const totalPaid = payments.reduce((sum, p) => sum + p.amount, 0);
 
-  const interestPaid = Math.min(totalPaid, interestAccrued);
-  const principalPaid = Math.max(0, totalPaid - interestAccrued);
+  const feesPaid = Math.min(totalPaid, feesAccrued);
+  const afterFees = totalPaid - feesPaid;
+  const interestPaid = Math.min(afterFees, interestAccrued);
+  const principalPaid = Math.max(0, afterFees - interestAccrued);
   const principalRemaining = Math.max(0, loan.amount - principalPaid);
   const interestRemaining = interestAccrued - interestPaid;
+  const feesRemaining = feesAccrued - feesPaid;
 
   return {
     principalRemaining,
     interestAccrued,
-    totalOwed: principalRemaining + interestRemaining,
+    feesRemaining,
+    totalOwed: principalRemaining + interestRemaining + feesRemaining,
     daysElapsed,
   };
 }
@@ -103,4 +112,38 @@ export function calculateBorrowingLimit(
  */
 export function calculateGroupLendingCapacity(groupSummary: Pick<GroupSummary, "totalPool">): number {
   return Math.max(0, groupSummary.totalPool);
+}
+
+export type LateFeeCalculation = {
+  daysLate: number;
+  daysCharged: number;
+  feesAccrued: number;
+};
+
+/**
+ * Late fees on an overdue loan, snapshot-configured at request time
+ * (`Loan.latenessGraceDays`/`lateFeeType`/`lateFeeAmount`). Grace days are
+ * forgiven entirely — fees only start accruing once `daysLate` exceeds them.
+ */
+export function calculateLateFees(
+  dueDate: Date,
+  latenessGraceDays: number,
+  lateFeeType: LateFeeType,
+  lateFeeAmount: number,
+  outstandingPrincipal: number,
+  asOfDate: Date,
+): LateFeeCalculation {
+  const daysLate = Math.max(0, Math.floor((asOfDate.getTime() - dueDate.getTime()) / MS_PER_DAY));
+  const daysCharged = Math.max(0, daysLate - latenessGraceDays);
+
+  if (lateFeeType === "NONE" || daysCharged === 0) {
+    return { daysLate, daysCharged, feesAccrued: 0 };
+  }
+
+  const feesAccrued =
+    lateFeeType === "FIXED"
+      ? lateFeeAmount * daysCharged
+      : Math.round(outstandingPrincipal * (lateFeeAmount / BASIS_POINTS_DENOMINATOR) * daysCharged);
+
+  return { daysLate, daysCharged, feesAccrued };
 }

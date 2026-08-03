@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { getMembership, canManageGroup } from "@/lib/permissions";
+import { hasActiveShareOut } from "@/lib/shareout-guard";
 
 type ActionResult<T> = { ok: true; data: T } | { ok: false; error: string };
 
@@ -26,6 +27,10 @@ export async function createMeeting(
     const membership = await getMembership(session.user.id, groupId);
     if (!canManageGroup(membership)) {
       return { ok: false, error: tErrors("notAuthorized") };
+    }
+
+    if (await hasActiveShareOut(groupId)) {
+      return { ok: false, error: tErrors("shareOutInProgress") };
     }
 
     const meeting = await prisma.meeting.create({

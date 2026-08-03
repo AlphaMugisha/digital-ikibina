@@ -4,6 +4,7 @@ import {
   calculateBorrowingLimit,
   calculateGroupLendingCapacity,
   calculateInterest,
+  calculateLateFees,
 } from "./loans";
 
 describe("calculateInterest", () => {
@@ -49,6 +50,7 @@ describe("calculateAmountOwed", () => {
     expect(result).toEqual({
       principalRemaining: 200_000,
       interestAccrued: 0,
+      feesRemaining: 0,
       totalOwed: 200_000,
       daysElapsed: 0,
     });
@@ -165,6 +167,57 @@ describe("calculateBorrowingLimit", () => {
 
   it("handles a 100% (1x) multiplier", () => {
     expect(calculateBorrowingLimit(50_000, 0, 100)).toBe(50_000);
+  });
+});
+
+describe("calculateLateFees", () => {
+  const dueDate = new Date("2026-01-01T00:00:00.000Z");
+
+  it("charges nothing before the due date", () => {
+    const before = new Date("2025-12-20T00:00:00.000Z");
+    const result = calculateLateFees(dueDate, 0, "FIXED", 500, 100_000, before);
+    expect(result).toEqual({ daysLate: 0, daysCharged: 0, feesAccrued: 0 });
+  });
+
+  it("charges nothing while still within the grace period", () => {
+    const asOf = new Date("2026-01-04T00:00:00.000Z"); // 3 days late
+    const result = calculateLateFees(dueDate, 5, "FIXED", 500, 100_000, asOf);
+    expect(result.daysLate).toBe(3);
+    expect(result.daysCharged).toBe(0);
+    expect(result.feesAccrued).toBe(0);
+  });
+
+  it("charges a FIXED fee per day once past the grace period", () => {
+    // 10 days late, 2 grace days -> 8 days charged at 500 cents/day = 4000
+    const asOf = new Date("2026-01-11T00:00:00.000Z");
+    const result = calculateLateFees(dueDate, 2, "FIXED", 500, 100_000, asOf);
+    expect(result.daysLate).toBe(10);
+    expect(result.daysCharged).toBe(8);
+    expect(result.feesAccrued).toBe(4_000);
+  });
+
+  it("charges a PERCENT fee of outstanding principal per day once past the grace period", () => {
+    // 10 days late, 2 grace days -> 8 days charged at 1% (100 bps) of 100,000 = 1,000/day -> 8,000
+    const asOf = new Date("2026-01-11T00:00:00.000Z");
+    const result = calculateLateFees(dueDate, 2, "PERCENT", 100, 100_000, asOf);
+    expect(result.daysLate).toBe(10);
+    expect(result.daysCharged).toBe(8);
+    expect(result.feesAccrued).toBe(8_000);
+  });
+
+  it("returns 0 fees when lateFeeType is NONE regardless of days late", () => {
+    const asOf = new Date("2026-02-01T00:00:00.000Z");
+    const result = calculateLateFees(dueDate, 0, "NONE", 999, 100_000, asOf);
+    expect(result.feesAccrued).toBe(0);
+  });
+
+  it("scales correctly over a very long overdue period without overflow", () => {
+    // 3 years (~1095 days) late, FIXED 100 cents/day
+    const asOf = new Date("2029-01-01T00:00:00.000Z");
+    const result = calculateLateFees(dueDate, 0, "FIXED", 100, 100_000, asOf);
+    expect(result.daysLate).toBeGreaterThan(1000);
+    expect(result.feesAccrued).toBe(result.daysCharged * 100);
+    expect(Number.isFinite(result.feesAccrued)).toBe(true);
   });
 });
 

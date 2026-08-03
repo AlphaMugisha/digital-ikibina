@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { getMembership } from "@/lib/permissions";
+import { toCents } from "@/lib/money";
 import { createGroupPoliciesSchema, type GroupPoliciesValues } from "@/lib/schemas";
 
 type ActionResult = { ok: true } | { ok: false; error: string };
@@ -35,6 +36,8 @@ export async function updateGroupPolicies(
     await prisma.group.update({
       where: { id: groupId },
       data: {
+        minContributionAmount: toCents(parsed.data.minContributionAmount),
+        maxContributionAmount: toCents(parsed.data.maxContributionAmount),
         maxLoanMultiplier: Number(parsed.data.maxLoanMultiplier),
         maxLoanDurationDays: Number(parsed.data.maxLoanDurationDays),
         requireGuarantor: parsed.data.requireGuarantor,

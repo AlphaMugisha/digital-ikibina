@@ -24,11 +24,13 @@ model User {
 model Group {
   id                  String       @id @default(cuid())
   name                String
-  contributionAmount  Int          // RWF cents
+  minContributionAmount Int        @default(0) // RWF cents — lower bound of what a member may give per meeting
+  maxContributionAmount Int        @default(0) // RWF cents — upper bound of what a member may give per meeting
   meetingDay          Int          // 0=Sunday..6=Saturday
   interestRate        Int          // basis points (500 = 5%)
   cycleStart          DateTime
   cycleEnd            DateTime
+  cycleNumber         Int          @default(1)
   createdAt           DateTime     @default(now())
   maxLoanMultiplier   Int          @default(300) // percentage: 300 = 3x member's contributions
   maxLoanDurationDays Int          @default(90)
@@ -38,6 +40,8 @@ model Group {
   meetings            Meeting[]
   invitations         Invitation[]
   messages            Message[]
+  shareOuts           ShareOut[]
+  constitution        GroupConstitution?
 }
 
 enum Role {
@@ -58,6 +62,9 @@ model Membership {
   loans           Loan[]
   guaranteedLoans Loan[]         @relation("GuarantorLoans")
   messages        Message[]
+  allocations     ShareOutAllocation[]
+  constitutionAgreements ConstitutionAgreement[]
+  attendances     MeetingAttendance[]
   @@unique([userId, groupId])
   @@index([groupId])
 }
@@ -72,6 +79,7 @@ model Meeting {
   group          Group          @relation(fields: [groupId], references: [id], onDelete: Cascade)
   contributions  Contribution[]
   decisions      MeetingDecision[]
+  attendances    MeetingAttendance[]
   @@index([groupId, date])
 }
 
@@ -139,25 +147,36 @@ enum LoanStatus {
   DEFAULTED // past due, marked as bad debt
 }
 
+enum LateFeeType {
+  NONE
+  FIXED       // fixed cents per day late
+  PERCENT     // percent of outstanding balance per day (basis points)
+}
+
 model Loan {
-  id              String        @id @default(cuid())
-  membershipId    String
-  amount          Int           // principal in cents
-  interestRate    Int           // basis points, snapshot from group at time of loan
-  dueDate         DateTime
-  status          LoanStatus    @default(PENDING)
-  purpose         String?
-  requestedAt     DateTime      @default(now())
-  approvedAt      DateTime?
-  approvedBy      String?       // userId of the leader who approved
-  rejectedAt      DateTime?
-  rejectedBy      String?
-  rejectionReason String?
-  takenAt         DateTime?     // when funds were disbursed
-  guarantorId     String?       // optional co-signer (another membershipId in the same group)
-  membership      Membership    @relation(fields: [membershipId], references: [id], onDelete: Cascade)
-  guarantor       Membership?   @relation("GuarantorLoans", fields: [guarantorId], references: [id])
-  payments        LoanPayment[]
+  id                String        @id @default(cuid())
+  membershipId      String
+  amount            Int           // principal in cents
+  interestRate      Int           // basis points, snapshot from group at time of loan
+  dueDate           DateTime
+  status            LoanStatus    @default(PENDING)
+  purpose           String?
+  requestedAt       DateTime      @default(now())
+  approvedAt        DateTime?
+  approvedBy        String?       // userId of the leader who approved
+  rejectedAt        DateTime?
+  rejectedBy        String?
+  rejectionReason   String?
+  takenAt           DateTime?     // when funds were disbursed
+  guarantorId       String?       // optional co-signer (another membershipId in the same group)
+  latenessGraceDays Int           @default(0)     // snapshot from constitution at request time
+  lateFeeType       LateFeeType   @default(NONE)  // snapshot from constitution at request time
+  lateFeeAmount     Int           @default(0)     // snapshot from constitution at request time
+  lateFeesAccrued   Int           @default(0)     // running total in cents
+  lastLateFeeCalc   DateTime?
+  membership        Membership    @relation(fields: [membershipId], references: [id], onDelete: Cascade)
+  guarantor         Membership?   @relation("GuarantorLoans", fields: [guarantorId], references: [id])
+  payments          LoanPayment[]
 
   @@index([membershipId])
   @@index([status])
@@ -171,4 +190,135 @@ model LoanPayment {
   paidAt DateTime @default(now())
   loan   Loan     @relation(fields: [loanId], references: [id], onDelete: Cascade)
   @@index([loanId])
+}
+
+enum ShareOutStatus {
+  DRAFT       // preview / calculation stage, editable
+  FINALIZED   // numbers locked in, ready for physical payout
+  COMPLETED   // marked as paid out; cycle officially closes
+  CANCELLED   // leader cancelled the draft before finalization
+}
+
+enum AllocationStatus {
+  PENDING     // calculated but not yet paid to member
+  PAID        // member received their share
+  WAIVED      // member declined or forfeited (rare)
+}
+
+model ShareOut {
+  id                    String               @id @default(cuid())
+  groupId               String
+  cycleStart            DateTime             // snapshot of group cycle at initiation
+  cycleEnd              DateTime
+  totalPool             Int                  // cents — cash on hand at end of cycle
+  totalContributions    Int                  // cents — sum of all contributions in cycle
+  totalInterestEarned   Int                  // cents — from PAID loans in cycle
+  totalWrittenOff       Int                  // cents — from DEFAULTED / carried-forward unpaid loans
+  memberCount           Int
+  status                ShareOutStatus       @default(DRAFT)
+  initiatedBy           String               // userId of leader who started it
+  initiatedAt           DateTime             @default(now())
+  finalizedAt           DateTime?
+  finalizedBy           String?
+  completedAt           DateTime?
+  completedBy           String?
+  cancelledAt           DateTime?
+  cancelledBy           String?
+  notes                 String?
+  allocations           ShareOutAllocation[]
+  group                 Group                @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@index([groupId])
+  @@index([status])
+  @@index([groupId, status])
+}
+
+model ShareOutAllocation {
+  id                    String            @id @default(cuid())
+  shareOutId            String
+  membershipId          String
+  totalContributed      Int               // cents — this member's contributions during cycle
+  interestShare         Int               // cents — this member's fair slice of interest
+  loanDeduction         Int               // cents — carried-forward unpaid loan principal
+  finalPayout           Int               // cents — what they actually receive
+  status                AllocationStatus  @default(PENDING)
+  paidAt                DateTime?
+  paidBy                String?           // userId who marked as paid
+  note                  String?
+  shareOut              ShareOut          @relation(fields: [shareOutId], references: [id], onDelete: Cascade)
+  membership            Membership        @relation(fields: [membershipId], references: [id])
+
+  @@unique([shareOutId, membershipId])
+  @@index([shareOutId])
+  @@index([membershipId])
+}
+
+model GroupConstitution {
+  id                   String                    @id @default(cuid())
+  groupId              String                    @unique
+  version              Int                       @default(1)
+  content              String                    // markdown
+  latenessGraceDays    Int                       @default(0)
+  lateFeeType          LateFeeType               @default(NONE)
+  lateFeeAmount        Int                       @default(0)
+  absenceFineAmount    Int                       @default(0)  // cents per missed meeting
+  publishedAt          DateTime?
+  createdAt            DateTime                  @default(now())
+  updatedAt            DateTime                  @updatedAt
+  group                Group                     @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  revisions            ConstitutionRevision[]
+  agreements           ConstitutionAgreement[]
+
+  @@index([groupId])
+}
+
+model ConstitutionRevision {
+  id             String            @id @default(cuid())
+  constitutionId String
+  version        Int
+  content        String
+  editedBy       String
+  editedAt       DateTime          @default(now())
+  changeNote     String?
+  constitution   GroupConstitution @relation(fields: [constitutionId], references: [id], onDelete: Cascade)
+
+  @@index([constitutionId])
+}
+
+model ConstitutionAgreement {
+  id             String            @id @default(cuid())
+  constitutionId String
+  membershipId   String
+  version        Int
+  agreedAt       DateTime          @default(now())
+  constitution   GroupConstitution @relation(fields: [constitutionId], references: [id], onDelete: Cascade)
+  membership     Membership        @relation(fields: [membershipId], references: [id])
+
+  @@unique([constitutionId, membershipId, version])
+  @@index([membershipId])
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  EXCUSED
+  LATE
+}
+
+model MeetingAttendance {
+  id           String           @id @default(cuid())
+  meetingId    String
+  membershipId String
+  status       AttendanceStatus @default(ABSENT)
+  fineAmount   Int              @default(0)
+  finePaid     Boolean          @default(false)
+  paidAt       DateTime?
+  note         String?
+  recordedBy   String
+  recordedAt   DateTime         @default(now())
+  meeting      Meeting          @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  membership   Membership       @relation(fields: [membershipId], references: [id])
+
+  @@unique([meetingId, membershipId])
+  @@index([membershipId])
 }

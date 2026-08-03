@@ -82,9 +82,17 @@ export default async function NewLoanPage({
           </p>
         </div>
       </div>
-      <p className="mt-3 text-sm text-muted-foreground">
-        {tLoans("interestRateLabel")}: {(group.interestRate / 100).toFixed(2)}%
-      </p>
+      <div className="mt-3 space-y-1 rounded-2xl border border-dashed border-border bg-secondary/40 p-4 text-sm text-foreground">
+        <p>
+          {tLoans("infoBorrowLimit", { amount: formatRWF(borrowingLimit, locale) })}
+        </p>
+        <p>
+          {tLoans("infoInterestRate", { rate: (group.interestRate / 100).toFixed(2) })}
+        </p>
+        <p>
+          {tLoans("infoRepayWithin", { days: group.maxLoanDurationDays })}
+        </p>
+      </div>
 
       <div className="mt-6 rounded-2xl border border-border bg-card p-5 shadow-warm-sm">
         <LoanRequestForm
@@ -95,6 +103,8 @@ export default async function NewLoanPage({
           otherMembers={otherMembers.map((m) => ({ id: m.id, name: m.user.name }))}
         />
       </div>
+
+      <p className="mt-4 text-center text-xs text-muted-foreground">{tLoans("afterSubmitNotice")}</p>
     </div>
   );
 }

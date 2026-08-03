@@ -10,6 +10,7 @@ export function GroupTabs({ groupId }: { groupId: string }) {
   const t = useTranslations("groups");
   const tLoans = useTranslations("loans");
   const tChat = useTranslations("chat");
+  const tShareOut = useTranslations("shareout");
 
   const base = `/dashboard/groups/${groupId}`;
   const tabs = [
@@ -17,6 +18,7 @@ export function GroupTabs({ groupId }: { groupId: string }) {
     { value: "meetings", href: `${base}/meetings`, label: t("tabMeetings") },
     { value: "members", href: `${base}/members`, label: t("tabMembers") },
     { value: "loans", href: `${base}/loans`, label: tLoans("title") },
+    { value: "share-out", href: `${base}/share-out`, label: tShareOut("title") },
     { value: "chat", href: `${base}/chat`, label: tChat("title") },
   ] as const;
 

@@ -5,6 +5,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { toCents } from "@/lib/money";
 import { getMembership } from "@/lib/permissions";
+import { hasActiveShareOut } from "@/lib/shareout-guard";
 import { calculateGroupSummary } from "@/lib/balances";
 import { calculateBorrowingLimit, calculateGroupLendingCapacity } from "@/lib/loans";
 import { createLoanRequestSchema } from "@/lib/schemas";
@@ -50,6 +51,10 @@ export async function requestLoan(
       return { ok: false, error: tErrors("notGroupMember") };
     }
 
+    if (await hasActiveShareOut(groupId)) {
+      return { ok: false, error: tErrors("shareOutInProgress") };
+    }
+
     const amountCents = toCents(parsed.data.amount);
     const parsedDueDate = new Date(parsed.data.dueDate);
     const maxDue = Date.now() + group.maxLoanDurationDays * MS_PER_DAY;
@@ -75,7 +80,7 @@ export async function requestLoan(
       return { ok: false, error: tErrors("guarantorRequired") };
     }
 
-    const [contributions, activeLoans, groupSummary] = await Promise.all([
+    const [contributions, activeLoans, groupSummary, constitution] = await Promise.all([
       prisma.contribution.aggregate({
         where: { membershipId: membership.id },
         _sum: { amount: true },
@@ -85,6 +90,10 @@ export async function requestLoan(
         _sum: { amount: true },
       }),
       calculateGroupSummary(groupId),
+      prisma.groupConstitution.findUnique({
+        where: { groupId },
+        select: { latenessGraceDays: true, lateFeeType: true, lateFeeAmount: true },
+      }),
     ]);
 
     const borrowingLimit = calculateBorrowingLimit(
@@ -112,6 +121,11 @@ export async function requestLoan(
         guarantorId: resolvedGuarantorId,
         status: autoApprove ? "APPROVED" : "PENDING",
         approvedAt: autoApprove ? new Date() : null,
+        // Late-fee terms are locked in at request time — a later constitution
+        // edit must never retroactively change fees on an existing loan.
+        latenessGraceDays: constitution?.latenessGraceDays ?? 0,
+        lateFeeType: constitution?.lateFeeType ?? "NONE",
+        lateFeeAmount: constitution?.lateFeeAmount ?? 0,
       },
       select: { id: true },
     });

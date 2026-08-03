@@ -7,6 +7,7 @@ import { getMembership, canManageGroup } from "@/lib/permissions";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { MeetingRecorder, type MemberRowData } from "./meeting-recorder";
 import { MeetingDecisions } from "./meeting-decisions";
+import { AttendanceRecorder, type AttendanceRowData } from "./attendance-recorder";
 
 export async function generateMetadata({
   params,
@@ -41,7 +42,7 @@ export default async function MeetingRecordingPage({
   const membership = await getMembership(session.user.id, groupId);
   if (!membership) notFound();
 
-  const [locale, t, memberships, contributions, decisions] = await Promise.all([
+  const [locale, t, memberships, contributions, decisions, attendances] = await Promise.all([
     getLocale(),
     getTranslations("meetings"),
     prisma.membership.findMany({
@@ -51,11 +52,23 @@ export default async function MeetingRecordingPage({
     }),
     prisma.contribution.findMany({ where: { meetingId } }),
     prisma.meetingDecision.findMany({ where: { meetingId }, orderBy: { createdAt: "asc" } }),
+    prisma.meetingAttendance.findMany({ where: { meetingId } }),
   ]);
 
   const contributionByMembership = new Map(
     contributions.map((c) => [c.membershipId, c]),
   );
+  const attendanceByMembership = new Map(attendances.map((a) => [a.membershipId, a]));
+
+  const attendanceRows: AttendanceRowData[] = memberships.map((m) => {
+    const attendance = attendanceByMembership.get(m.id);
+    return {
+      membershipId: m.id,
+      name: m.user.name,
+      status: attendance?.status ?? "ABSENT",
+      chargeFine: attendance?.status === "LATE" && attendance.fineAmount > 0,
+    };
+  });
 
   const members: MemberRowData[] = memberships.map((m) => {
     const contribution = contributionByMembership.get(m.id);
@@ -92,11 +105,21 @@ export default async function MeetingRecordingPage({
       </p>
 
       <div className="mt-6">
+        <AttendanceRecorder
+          meetingId={meetingId}
+          members={attendanceRows}
+          canManage={canManageGroup(membership)}
+        />
+      </div>
+
+      <div className="mt-8">
         <MeetingRecorder
           meetingId={meetingId}
           groupId={groupId}
           members={members}
-          defaultAmountCents={meeting.group.contributionAmount}
+          defaultAmountCents={meeting.group.minContributionAmount}
+          minAmountCents={meeting.group.minContributionAmount}
+          maxAmountCents={meeting.group.maxContributionAmount}
           locale={locale}
           canManage={canManageGroup(membership)}
         />

@@ -4,7 +4,9 @@ import createNextIntlPlugin from "next-intl/plugin";
 const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Hide the dev-mode "compiling…" on-screen indicator — we show our own
+  // branded loading screen (app/loading.tsx) instead.
+  devIndicators: false,
 };
 
 export default withNextIntl(nextConfig);

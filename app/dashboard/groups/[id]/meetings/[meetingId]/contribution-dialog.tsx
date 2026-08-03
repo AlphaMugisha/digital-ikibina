@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,7 +21,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { useMediaQuery } from "@/hooks/use-media-query";
-import { fromCents } from "@/lib/money";
+import { fromCents, formatRWF, toCents } from "@/lib/money";
 import { recordContribution } from "./actions";
 
 export type ContributionTarget = {
@@ -35,21 +35,35 @@ export type ContributionTarget = {
 function ContributionForm({
   meetingId,
   target,
+  minAmountCents,
+  maxAmountCents,
   onOpenChange,
   onSaved,
 }: {
   meetingId: string;
   target: ContributionTarget;
+  minAmountCents: number;
+  maxAmountCents: number;
   onOpenChange: (open: boolean) => void;
   onSaved: (membershipId: string, amountCents: number) => void;
 }) {
   const t = useTranslations("meetings");
   const tCommon = useTranslations("common");
+  const locale = useLocale();
   const [isPending, startTransition] = useTransition();
   const [amount, setAmount] = useState(
     target.amountCents > 0 ? String(fromCents(target.amountCents)) : "",
   );
   const [note, setNote] = useState(target.note);
+
+  let amountCents = -1;
+  try {
+    amountCents = toCents(amount || "0");
+  } catch {
+    amountCents = -1;
+  }
+  const outOfRange =
+    amountCents >= 0 && (amountCents < minAmountCents || amountCents > maxAmountCents);
 
   function handleSave() {
     startTransition(async () => {
@@ -83,6 +97,12 @@ function ContributionForm({
               RWF
             </span>
           </div>
+          <p className={`text-xs ${outOfRange ? "text-destructive" : "text-muted-foreground"}`}>
+            {t("contributionRangeHint", {
+              min: formatRWF(minAmountCents, locale),
+              max: formatRWF(maxAmountCents, locale),
+            })}
+          </p>
         </div>
         <div className="space-y-2">
           <Label htmlFor="contribution-note">
@@ -100,7 +120,7 @@ function ContributionForm({
         <Button
           type="button"
           className="h-12 w-full rounded-full text-base md:w-auto"
-          disabled={isPending}
+          disabled={isPending || outOfRange || !amount}
           onClick={handleSave}
         >
           {isPending && <Loader2 className="size-4 animate-spin" aria-hidden="true" />}
@@ -114,11 +134,15 @@ function ContributionForm({
 export function ContributionDialog({
   meetingId,
   target,
+  minAmountCents,
+  maxAmountCents,
   onOpenChange,
   onSaved,
 }: {
   meetingId: string;
   target: ContributionTarget | null;
+  minAmountCents: number;
+  maxAmountCents: number;
   onOpenChange: (open: boolean) => void;
   onSaved: (membershipId: string, amountCents: number) => void;
 }) {
@@ -132,6 +156,8 @@ export function ContributionDialog({
       key={target.membershipId}
       meetingId={meetingId}
       target={target}
+      minAmountCents={minAmountCents}
+      maxAmountCents={maxAmountCents}
       onOpenChange={onOpenChange}
       onSaved={onSaved}
     />

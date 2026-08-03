@@ -56,6 +56,7 @@ export async function recordLoanPayment(
           interestRate: true,
           takenAt: true,
           status: true,
+          lateFeesAccrued: true,
           membership: { select: { groupId: true } },
         },
       });
@@ -73,6 +74,10 @@ export async function recordLoanPayment(
       if (loan.status !== "ACTIVE") {
         return { ok: false, error: tErrors("loanNotActive") };
       }
+
+      // Deliberately NOT blocked by an active share-out: paying down an
+      // ACTIVE loan only shrinks its carried-forward deduction, which is
+      // exactly what a leader wants to encourage during a share-out.
 
       const existingPayments = await tx.loanPayment.findMany({
         where: { loanId },

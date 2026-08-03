@@ -44,10 +44,10 @@ export default async function GroupLayout({
         {membership.role === "LEADER" && (
           <Link
             href={`/dashboard/groups/${groupId}/settings`}
-            aria-label={tGroups("settingsLink")}
-            className="mt-1 flex size-9 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-secondary hover:text-foreground"
+            className="mt-1 flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground"
           >
-            <Settings className="size-5" aria-hidden="true" />
+            <Settings className="size-4" aria-hidden="true" />
+            {tGroups("settingsLink")}
           </Link>
         )}
       </div>

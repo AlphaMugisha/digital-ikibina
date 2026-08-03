@@ -31,6 +31,7 @@ export function GroupPoliciesForm({
 }) {
   const [isPending, startTransition] = useTransition();
   const t = useTranslations("loans");
+  const tGroups = useTranslations("groups");
   const tCommon = useTranslations("common");
   const tValidation = useTranslations("validation");
 
@@ -55,6 +56,57 @@ export function GroupPoliciesForm({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 pb-24 md:pb-0">
+        <div className="grid gap-5 sm:grid-cols-2">
+          <FormField
+            control={form.control}
+            name="minContributionAmount"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{tGroups("minContributionLabel")}</FormLabel>
+                <FormControl>
+                  <div className="relative">
+                    <Input
+                      {...field}
+                      className="h-12 rounded-xl pr-14 text-base"
+                      type="text"
+                      inputMode="numeric"
+                    />
+                    <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-sm font-medium text-muted-foreground">
+                      RWF
+                    </span>
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="maxContributionAmount"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{tGroups("maxContributionLabel")}</FormLabel>
+                <FormControl>
+                  <div className="relative">
+                    <Input
+                      {...field}
+                      className="h-12 rounded-xl pr-14 text-base"
+                      type="text"
+                      inputMode="numeric"
+                    />
+                    <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-sm font-medium text-muted-foreground">
+                      RWF
+                    </span>
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <Separator />
+
         <FormField
           control={form.control}
           name="maxLoanMultiplier"

@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { getTranslations } from "next-intl/server";
 import { auth } from "@/auth";
 import { prisma, type PrismaTransaction } from "@/lib/prisma";
+import { hasActiveShareOut } from "@/lib/shareout-guard";
 import { calculateGroupSummary } from "@/lib/balances";
 import { calculateBorrowingLimit, calculateGroupLendingCapacity } from "@/lib/loans";
 import { createRejectLoanSchema } from "@/lib/schemas";
@@ -46,6 +47,10 @@ export async function approveLoan(loanId: string): Promise<ActionResult<null>> {
 
       if (loan.status !== "PENDING") {
         return { ok: false, error: tErrors("loanNotPending") };
+      }
+
+      if (await hasActiveShareOut(loan.membership.groupId, tx)) {
+        return { ok: false, error: tErrors("shareOutInProgress") };
       }
 
       const group = await tx.group.findUnique({ where: { id: loan.membership.groupId } });
@@ -167,6 +172,10 @@ export async function disburseLoan(loanId: string): Promise<ActionResult<null>> 
       // disbursing the same loan at the same time.
       if (loan.status !== "APPROVED") {
         return { ok: false, error: tErrors("loanNotApproved") };
+      }
+
+      if (await hasActiveShareOut(loan.membership.groupId, tx)) {
+        return { ok: false, error: tErrors("shareOutInProgress") };
       }
 
       await tx.loan.update({

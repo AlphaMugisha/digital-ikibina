@@ -6,13 +6,18 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { toCents } from "@/lib/money";
 import { canManageGroup, getMembership } from "@/lib/permissions";
+import { hasActiveShareOut } from "@/lib/shareout-guard";
 
 type ActionResult<T> = { ok: true; data: T } | { ok: false; error: string };
 
 async function getMeetingWithGroup(meetingId: string) {
   return prisma.meeting.findUnique({
     where: { id: meetingId },
-    select: { id: true, groupId: true },
+    select: {
+      id: true,
+      groupId: true,
+      group: { select: { minContributionAmount: true, maxContributionAmount: true } },
+    },
   });
 }
 
@@ -46,6 +51,17 @@ export async function recordContribution(
     const actingMembership = await getMembership(session.user.id, meeting.groupId);
     if (!canManageGroup(actingMembership)) {
       return { ok: false, error: tErrors("notAuthorized") };
+    }
+
+    if (await hasActiveShareOut(meeting.groupId)) {
+      return { ok: false, error: tErrors("shareOutInProgress") };
+    }
+
+    if (
+      amountCents < meeting.group.minContributionAmount ||
+      amountCents > meeting.group.maxContributionAmount
+    ) {
+      return { ok: false, error: tErrors("contributionOutOfRange") };
     }
 
     // The member being recorded must belong to the same group as the meeting.

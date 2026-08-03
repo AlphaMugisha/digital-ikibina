@@ -30,7 +30,8 @@ export async function createGroup(
     const group = await prisma.group.create({
       data: {
         name: parsed.data.name,
-        contributionAmount: toCents(parsed.data.contributionAmount),
+        minContributionAmount: toCents(parsed.data.minContributionAmount),
+        maxContributionAmount: toCents(parsed.data.maxContributionAmount),
         meetingDay: Number(parsed.data.meetingDay),
         // percentage → basis points (5 → 500)
         interestRate: Math.round(Number(parsed.data.interestRate) * 100),

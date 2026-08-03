@@ -24,6 +24,8 @@ export function MeetingRecorder({
   groupId,
   members: initialMembers,
   defaultAmountCents,
+  minAmountCents,
+  maxAmountCents,
   locale,
   canManage,
 }: {
@@ -31,6 +33,8 @@ export function MeetingRecorder({
   groupId: string;
   members: MemberRowData[];
   defaultAmountCents: number;
+  minAmountCents: number;
+  maxAmountCents: number;
   locale: string;
   canManage: boolean;
 }) {
@@ -118,6 +122,8 @@ export function MeetingRecorder({
       <ContributionDialog
         meetingId={meetingId}
         target={target}
+        minAmountCents={minAmountCents}
+        maxAmountCents={maxAmountCents}
         onOpenChange={(open) => !open && setTarget(null)}
         onSaved={handleSaved}
       />
