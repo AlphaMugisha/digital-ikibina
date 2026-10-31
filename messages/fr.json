@@ -116,6 +116,7 @@
     "formInvalid": "Veuillez vérifier le formulaire et réessayer",
     "phoneAlreadyExists": "Ce numéro est déjà enregistré — connectez-vous plutôt",
     "registrationFailed": "L'inscription a échoué — téléphone ou carte d'identité déjà utilisés",
+    "accountCreatedSignInFailed": "Votre compte a été créé, mais la connexion a échoué. Veuillez vous connecter avec votre nouveau compte.",
     "wrongCredentials": "Téléphone ou PIN incorrect",
     "notAuthorized": "Vous n'avez pas la permission de faire cela",
     "groupCreateFailed": "La création du groupe a échoué — veuillez réessayer",

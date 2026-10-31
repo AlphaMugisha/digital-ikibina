@@ -116,6 +116,7 @@
     "formInvalid": "Reba amakuru winjije wongere ugerageze",
     "phoneAlreadyExists": "Iyi numero isanzwe yanditse — injira aho kwiyandikisha",
     "registrationFailed": "Kwiyandikisha ntibyakunze — telefoni cyangwa indangamuntu bisanzwe byanditse",
+    "accountCreatedSignInFailed": "Konti yawe yaremwe, ariko kwinjira ntibyakunze. Injira ukoresheje konti yawe nshya.",
     "wrongCredentials": "Telefoni cyangwa PIN sibyo",
     "notAuthorized": "Ntabwo wemerewe gukora iki gikorwa",
     "groupCreateFailed": "Gukora itsinda ntibyakunze — ongera ugerageze",

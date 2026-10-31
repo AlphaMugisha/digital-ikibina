@@ -117,6 +117,7 @@
     "formInvalid": "Please check the form and try again",
     "phoneAlreadyExists": "This phone number is already registered — sign in instead",
     "registrationFailed": "Registration failed — phone or national ID already in use",
+    "accountCreatedSignInFailed": "Your account was created, but sign-in failed. Please sign in with your new account.",
     "wrongCredentials": "Phone or PIN is incorrect",
     "notAuthorized": "You don't have permission to do that",
     "groupCreateFailed": "Creating the group failed — please try again",

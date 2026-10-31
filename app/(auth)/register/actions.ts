@@ -2,6 +2,7 @@
 
 import bcrypt from "bcryptjs";
 import { Prisma } from "@prisma/client";
+import { AuthError } from "next-auth";
 import { getTranslations } from "next-intl/server";
 import { signIn } from "@/auth";
 import { prisma } from "@/lib/prisma";
@@ -68,9 +69,18 @@ export async function registerUser(
 
   // Sign in with the same credentials and land on the dashboard.
   // On success this throws NEXT_REDIRECT, which Next.js handles.
-  await signIn("credentials", {
-    phone,
-    pin: parsed.data.pin,
-    redirectTo: "/dashboard",
-  });
+  try {
+    await signIn("credentials", {
+      phone,
+      pin: parsed.data.pin,
+      redirectTo: "/dashboard",
+    });
+  } catch (err) {
+    if (err instanceof AuthError) {
+      console.error("[registerUser] Account created but sign-in failed:", err);
+      return { error: tErrors("accountCreatedSignInFailed") };
+    }
+    // Let Next.js process the successful redirect and surface unexpected errors.
+    throw err;
+  }
 }
