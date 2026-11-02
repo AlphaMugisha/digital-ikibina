@@ -30,10 +30,10 @@ export function SiteNav() {
 
   return (
     <header
-      className={`sticky top-0 z-50 transition-colors duration-300 ${
+      className={`sticky top-0 z-50 border-b transition-colors duration-300 ${
         scrolled
-          ? "border-b border-border bg-background/70 backdrop-blur-md"
-          : "border-b border-transparent bg-transparent"
+          ? "border-border bg-background/95 shadow-sm backdrop-blur-md"
+          : "border-border/70 bg-background"
       }`}
     >
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6 md:px-8">
