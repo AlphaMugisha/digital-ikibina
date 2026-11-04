@@ -1,36 +1,49 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Digital Ikibina
 
-## Getting Started
+## Overview
 
-First, run the development server:
+Digital Ikibina is a web application codebase built with Next.js and TypeScript. Its repository includes authentication modules, application components, internationalization messages, Prisma database files, and a Vitest configuration.
+
+## Mission
+
+Support the digitization of community savings groups (ikimina) by providing a structured online platform for group-related activities.
+
+## Goals
+
+- Provide a clear and reliable foundation for user access and account management.
+- Organize the application around group workflows and the needs of its intended members.
+- Keep data access and authentication rules explicit and maintainable.
+- Support the languages represented in the internationalization resources.
+- Use automated tests to improve confidence as features evolve.
+
+## Technology
+
+- Next.js and React
+- TypeScript
+- Prisma
+- Vitest
+- CSS and the project's configured UI components
+
+## Getting started
+
+Requirements: Node.js, npm, and a database configured for the Prisma schema.
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Create a local environment file based on `.env.example`, fill in the required values privately, then run the scripts defined in `package.json`. Never commit real credentials. Check the Prisma configuration and migrations before starting the application.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Repository structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `app/` — Next.js routes and application pages
+- `components/` — reusable interface components
+- `i18n/` and `messages/` — internationalization configuration and translations
+- `prisma/` — database schema and related files
+- `lib/` — shared application utilities
+- `types/` — TypeScript types
+- `vitest.config.ts` — test configuration
 
-## Learn More
+## Development priorities
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Keep the README aligned with implemented group workflows, document database setup and migrations, and run the available tests before releases.
