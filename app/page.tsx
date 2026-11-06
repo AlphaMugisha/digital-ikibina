@@ -1,34 +1,21 @@
 import Link from "next/link";
-import {
-  ArrowDown,
-  ArrowRight,
-  ArrowUpRight,
-  BadgeCheck,
-  Banknote,
-  CalendarCheck2,
-  Check,
-  CircleDollarSign,
-  HandCoins,
-  Landmark,
-  ShieldCheck,
-  UsersRound,
-} from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import { SiteNav } from "@/components/landing/site-nav";
+import { LandingGlyph, type LandingGlyphName } from "@/components/landing/landing-glyph";
 
 export default async function Home() {
   const t = await getTranslations("landing");
   const steps = [
-    { icon: UsersRound, title: t("step1Title"), detail: t("step1Detail") },
-    { icon: HandCoins, title: t("step2Title"), detail: t("step2Detail") },
-    { icon: CircleDollarSign, title: t("step3Title"), detail: t("step3Detail") },
+    { icon: "UsersRound", title: t("step1Title"), detail: t("step1Detail") },
+    { icon: "HandCoins", title: t("step2Title"), detail: t("step2Detail") },
+    { icon: "CircleDollarSign", title: t("step3Title"), detail: t("step3Detail") },
   ];
   const benefits = [
-    { icon: Landmark, title: t("why1Title"), detail: t("why1Subtitle") },
-    { icon: ShieldCheck, title: t("why2Title"), detail: t("why2Subtitle") },
-    { icon: UsersRound, title: t("why3Title"), detail: t("why3Subtitle") },
-    { icon: Banknote, title: t("why4Title"), detail: t("why4Subtitle") },
+    { icon: "Landmark", title: t("why1Title"), detail: t("why1Subtitle") },
+    { icon: "ShieldCheck", title: t("why2Title"), detail: t("why2Subtitle") },
+    { icon: "UsersRound", title: t("why3Title"), detail: t("why3Subtitle") },
+    { icon: "Banknote", title: t("why4Title"), detail: t("why4Subtitle") },
   ];
 
   return (
@@ -54,20 +41,24 @@ export default async function Home() {
               </p>
               <div className="mt-9 flex flex-col gap-3 sm:flex-row">
                 <Button asChild className="h-14 rounded-full bg-[#d9f36a] px-7 text-base font-bold text-[#163c31] shadow-[0_10px_35px_-12px_rgba(217,243,106,.65)] hover:bg-[#e5ff83]">
-                  <Link href="/register">{t("ctaPrimary")}<ArrowRight className="ml-2 size-5" aria-hidden="true" /></Link>
+                  <Link href="/register">{t("ctaPrimary")}<LandingGlyph name="ArrowRight" className="ml-2 size-5" /></Link>
                 </Button>
                 <Button asChild variant="outline" className="h-14 rounded-full border-white/25 bg-transparent px-7 text-base text-white hover:bg-white/10 hover:text-white">
-                  <Link href="#how-it-works">{t("ctaSecondary")}<ArrowDown className="ml-2 size-4" aria-hidden="true" /></Link>
+                  <Link href="#how-it-works">{t("ctaSecondary")}<LandingGlyph name="ArrowDown" className="ml-2 size-4" /></Link>
                 </Button>
               </div>
               <div className="mt-8 flex flex-wrap gap-x-6 gap-y-3 text-xs font-medium text-white/65">
                 {[t("trustFree"), t("trustNoCard"), t("trustLanguages")].map((item) => (
-                  <span key={item} className="inline-flex items-center gap-2"><Check className="size-4 text-[#d9f36a]" aria-hidden="true" />{item}</span>
+                  <span key={item} className="inline-flex items-center gap-2"><LandingGlyph name="Check" className="size-4 text-[#d9f36a]" />{item}</span>
                 ))}
               </div>
               <div className="mt-14 hidden items-center gap-3 border-t border-white/15 pt-5 text-sm text-white/70 sm:flex">
                 <div className="flex -space-x-2" aria-hidden="true">
-                  {["bg-[#e9a37b]", "bg-[#f0d17a]", "bg-[#a7c8a1]", "bg-[#d4a4c7"]].map((color, i) => <span key={i} className={`grid size-8 place-items-center rounded-full border-2 border-[#163c31] ${color}`}><UsersRound className="size-3.5 text-[#163c31]" /></span>)}
+                  {["bg-[#e9a37b]", "bg-[#f0d17a]", "bg-[#a7c8a1]", "bg-[#d4a4c7]"].map((color, i) => (
+                    <span key={i} className={`grid size-8 place-items-center rounded-full border-2 border-[#163c31] ${color}`}>
+                      <LandingGlyph name="UsersRound" className="size-3.5 text-[#163c31]" />
+                    </span>
+                  ))}
                 </div>
                 <span>{t("trustedBy")}</span>
               </div>
@@ -79,7 +70,7 @@ export default async function Home() {
                 <div className="overflow-hidden rounded-[1.4rem] bg-[#fbfaef] text-[#163c31]">
                   <div className="flex items-center justify-between border-b border-[#163c31]/10 px-5 py-4 sm:px-7">
                     <div className="flex items-center gap-3">
-                      <span className="grid size-10 place-items-center rounded-xl bg-[#163c31] text-[#d9f36a]"><UsersRound className="size-5" aria-hidden="true" /></span>
+                      <span className="grid size-10 place-items-center rounded-xl bg-[#163c31] text-[#d9f36a]"><LandingGlyph name="UsersRound" className="size-5" /></span>
                       <div><p className="text-sm font-bold">Digital Ibimina</p><p className="text-[11px] text-[#163c31]/55">{t("step1Title")}</p></div>
                     </div>
                     <span className="rounded-full bg-[#e8edda] px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-[#42664e]">Preview</span>
@@ -87,7 +78,7 @@ export default async function Home() {
                   <div className="px-5 pb-6 pt-6 sm:px-7">
                     <div className="flex items-end justify-between gap-4">
                       <div><p className="text-xs font-semibold text-[#163c31]/55">{t("step2Title")}</p><p className="mt-1 font-display text-3xl font-semibold tracking-tight sm:text-4xl">{t("why3Title")}</p></div>
-                      <span className="mb-1 grid size-11 shrink-0 place-items-center rounded-full bg-[#d9f36a]"><ArrowUpRight className="size-5" aria-hidden="true" /></span>
+                      <span className="mb-1 grid size-11 shrink-0 place-items-center rounded-full bg-[#d9f36a]"><LandingGlyph name="ArrowUpRight" className="size-5" /></span>
                     </div>
                     <div className="mt-6 rounded-2xl bg-[#e9eddf] p-4 sm:p-5">
                       <div className="flex items-center justify-between text-xs font-semibold"><span>{t("howItWorksTitle")}</span><span className="text-[#163c31]/50">{t("step3Title")}</span></div>
@@ -97,14 +88,14 @@ export default async function Home() {
                       <div className="mt-3 flex justify-between text-[9px] font-semibold uppercase tracking-wider text-[#163c31]/40"><span>{t("step1Title")}</span><span>{t("step2Title")}</span><span>{t("step3Title")}</span></div>
                     </div>
                     <div className="mt-4 grid grid-cols-2 gap-3">
-                      <div className="rounded-2xl bg-white p-4"><div className="flex items-center gap-2 text-[#163c31]/55"><CalendarCheck2 className="size-4" /><span className="text-[10px] font-bold uppercase tracking-wider">{t("step2Title")}</span></div><p className="mt-3 text-sm font-bold">{t("why2Title")}</p></div>
-                      <div className="rounded-2xl bg-[#163c31] p-4 text-white"><div className="flex items-center gap-2 text-[#d9f36a]"><BadgeCheck className="size-4" /><span className="text-[10px] font-bold uppercase tracking-wider">{t("step3Title")}</span></div><p className="mt-3 text-sm font-bold">{t("why4Title")}</p></div>
+                      <div className="rounded-2xl bg-white p-4"><div className="flex items-center gap-2 text-[#163c31]/55"><LandingGlyph name="CalendarCheck2" className="size-4" /><span className="text-[10px] font-bold uppercase tracking-wider">{t("step2Title")}</span></div><p className="mt-3 text-sm font-bold">{t("why2Title")}</p></div>
+                      <div className="rounded-2xl bg-[#163c31] p-4 text-white"><div className="flex items-center gap-2 text-[#d9f36a]"><LandingGlyph name="BadgeCheck" className="size-4" /><span className="text-[10px] font-bold uppercase tracking-wider">{t("step3Title")}</span></div><p className="mt-3 text-sm font-bold">{t("why4Title")}</p></div>
                     </div>
                   </div>
                 </div>
               </div>
               <div className="absolute -bottom-8 -left-7 hidden max-w-[220px] -rotate-3 rounded-2xl bg-white p-4 text-[#163c31] shadow-xl sm:block">
-                <div className="flex items-center gap-2"><span className="grid size-8 place-items-center rounded-full bg-[#e8edda] text-[#42664e]"><Check className="size-4" /></span><span className="text-xs font-bold">{t("why2Title")}</span></div>
+                <div className="flex items-center gap-2"><span className="grid size-8 place-items-center rounded-full bg-[#e8edda] text-[#42664e]"><LandingGlyph name="Check" className="size-4" /></span><span className="text-xs font-bold">{t("why2Title")}</span></div>
                 <p className="mt-2 text-[11px] leading-5 text-[#163c31]/55">{t("why2Subtitle")}</p>
               </div>
             </div>
@@ -123,10 +114,10 @@ export default async function Home() {
               <p className="max-w-sm text-sm leading-6 text-[#163c31]/60">{t("whyUsIntro")}</p>
             </div>
             <div className="mt-12 grid gap-4 lg:grid-cols-3">
-              {steps.map(({ icon: Icon, title, detail }, index) => (
+              {steps.map(({ icon, title, detail }, index) => (
                 <article key={title} className={`relative min-h-[260px] overflow-hidden rounded-[1.8rem] p-7 sm:p-9 ${index === 1 ? "bg-[#e9a37b] text-[#3e281e]" : index === 2 ? "bg-[#d9f36a] text-[#163c31]" : "bg-white text-[#163c31]"}`}>
                   <span className="absolute -right-5 -top-12 font-display text-[12rem] font-semibold leading-none opacity-[0.06]">0{index + 1}</span>
-                  <div className="relative flex items-center justify-between"><span className="grid size-12 place-items-center rounded-2xl bg-black/5"><Icon className="size-5" aria-hidden="true" /></span><span className="font-mono text-xs font-bold opacity-50">STEP 0{index + 1}</span></div>
+                  <div className="relative flex items-center justify-between"><span className="grid size-12 place-items-center rounded-2xl bg-black/5"><LandingGlyph name={icon as LandingGlyphName} className="size-5" /></span><span className="font-mono text-xs font-bold opacity-50">STEP 0{index + 1}</span></div>
                   <h3 className="relative mt-12 text-2xl font-bold tracking-tight">{title}</h3>
                   <p className="relative mt-3 max-w-sm text-sm leading-6 opacity-70">{detail}</p>
                 </article>
@@ -137,9 +128,9 @@ export default async function Home() {
 
         <section id="about" className="scroll-mt-20 bg-[#e8edda]">
           <div className="mx-auto grid max-w-[1440px] gap-12 px-6 py-20 sm:px-10 md:py-28 lg:grid-cols-[0.8fr_1.2fr] lg:items-center lg:px-16">
-            <div><p className="text-xs font-extrabold uppercase tracking-[0.22em] text-[#5d785a]">{t("whyUsLabel")}</p><h2 className="mt-4 max-w-lg font-display text-4xl font-medium leading-[1.03] tracking-[-0.05em] sm:text-6xl">{t("whyUsTitle")}</h2><p className="mt-5 max-w-lg text-base leading-7 text-[#163c31]/65">{t("whyUsIntro")}</p><div className="mt-7 inline-flex items-center gap-2 rounded-full bg-[#163c31] px-4 py-2.5 text-sm font-semibold text-[#d9f36a]"><UsersRound className="size-4" aria-hidden="true" />{t("trustedBy")}</div></div>
+            <div><p className="text-xs font-extrabold uppercase tracking-[0.22em] text-[#5d785a]">{t("whyUsLabel")}</p><h2 className="mt-4 max-w-lg font-display text-4xl font-medium leading-[1.03] tracking-[-0.05em] sm:text-6xl">{t("whyUsTitle")}</h2><p className="mt-5 max-w-lg text-base leading-7 text-[#163c31]/65">{t("whyUsIntro")}</p><div className="mt-7 inline-flex items-center gap-2 rounded-full bg-[#163c31] px-4 py-2.5 text-sm font-semibold text-[#d9f36a]"><LandingGlyph name="UsersRound" className="size-4" />{t("trustedBy")}</div></div>
             <div className="grid gap-3 sm:grid-cols-2">
-              {benefits.map(({ icon: Icon, title, detail }, index) => <article key={title} className={`min-h-44 rounded-[1.6rem] p-6 sm:p-7 ${index === 0 ? "bg-[#163c31] text-white" : "bg-[#fbfaef] text-[#163c31]"}`}><span className={`grid size-10 place-items-center rounded-xl ${index === 0 ? "bg-white/10 text-[#d9f36a]" : "bg-[#e8edda] text-[#42664e]"}`}><Icon className="size-5" aria-hidden="true" /></span><h3 className="mt-6 font-bold">{title}</h3><p className={`mt-2 text-sm leading-6 ${index === 0 ? "text-white/65" : "text-[#163c31]/60"}`}>{detail}</p></article>)}
+              {benefits.map(({ icon, title, detail }, index) => <article key={title} className={`min-h-44 rounded-[1.6rem] p-6 sm:p-7 ${index === 0 ? "bg-[#163c31] text-white" : "bg-[#fbfaef] text-[#163c31]"}`}><span className={`grid size-10 place-items-center rounded-xl ${index === 0 ? "bg-white/10 text-[#d9f36a]" : "bg-[#e8edda] text-[#42664e]"}`}><LandingGlyph name={icon as LandingGlyphName} className="size-5" /></span><h3 className="mt-6 font-bold">{title}</h3><p className={`mt-2 text-sm leading-6 ${index === 0 ? "text-white/65" : "text-[#163c31]/60"}`}>{detail}</p></article>)}
             </div>
           </div>
         </section>
@@ -147,7 +138,7 @@ export default async function Home() {
         <section className="bg-[#d9f36a] px-6 py-16 text-[#163c31] sm:px-10 md:py-24 lg:px-16">
           <div className="mx-auto flex max-w-[1440px] flex-col justify-between gap-8 md:flex-row md:items-end">
             <div className="max-w-3xl"><p className="text-xs font-extrabold uppercase tracking-[0.22em]">{t("eyebrow")}</p><h2 className="mt-4 font-display text-5xl font-medium leading-[0.98] tracking-[-0.055em] sm:text-7xl">{t("closingTitle")}</h2><p className="mt-5 text-base text-[#163c31]/70">{t("closingSubtitle")}</p></div>
-            <Button asChild className="h-14 shrink-0 rounded-full bg-[#163c31] px-7 text-base text-white hover:bg-[#245541]"><Link href="/register">{t("ctaPrimary")}<ArrowRight className="ml-2 size-5" aria-hidden="true" /></Link></Button>
+            <Button asChild className="h-14 shrink-0 rounded-full bg-[#163c31] px-7 text-base text-white hover:bg-[#245541]"><Link href="/register">{t("ctaPrimary")}<LandingGlyph name="ArrowRight" className="ml-2 size-5" /></Link></Button>
           </div>
         </section>
       </main>

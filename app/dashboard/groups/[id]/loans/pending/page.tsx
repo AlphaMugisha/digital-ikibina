@@ -8,7 +8,7 @@ import { calculateMemberBalance } from "@/lib/balances";
 import { getGroupWithMembership } from "@/lib/groups";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { EmptyState } from "@/components/empty-state";
-import { ClipboardList } from "lucide-react";
+import { ClipboardList } from "@/components/icons";
 import { PendingLoanActions } from "./pending-loan-actions";
 import { DisburseButton } from "./disburse-button";
 

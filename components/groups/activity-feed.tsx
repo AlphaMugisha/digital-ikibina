@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Banknote, ClipboardList, HandCoins, ShieldAlert } from "lucide-react";
+import { Banknote, ClipboardList, HandCoins, ShieldAlert } from "@/components/icons";
 import { getTranslations } from "next-intl/server";
 import { formatRWF } from "@/lib/money";
 import type { LoanStatus } from "@prisma/client";

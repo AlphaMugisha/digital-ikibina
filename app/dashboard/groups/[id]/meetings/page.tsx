@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
-import { CalendarPlus, ChevronRight, ClipboardList } from "lucide-react";
+import { CalendarPlus, ChevronRight, ClipboardList } from "@/components/icons";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { formatRWF } from "@/lib/money";
