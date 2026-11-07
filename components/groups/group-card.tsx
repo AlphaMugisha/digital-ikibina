@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getLocale, getTranslations } from "next-intl/server";
-import { CalendarDays, ChevronRight, Users } from "lucide-react";
+import { CalendarDays, ChevronRight, Users } from "@/components/icons";
 import type { Role } from "@prisma/client";
 import { formatRWF } from "@/lib/money";
 import { meetingDayLabel } from "@/lib/days";
