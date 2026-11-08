@@ -1,15 +1,10 @@
 "use server";
 
-import { Prisma } from "@prisma/client";
 import { AuthError } from "next-auth";
 import { getTranslations } from "next-intl/server";
 import { signIn } from "@/auth";
+import { isDatabaseUnreachable, isInvalidCredentials } from "@/lib/auth-errors";
 import { createLoginSchema, type LoginValues } from "@/lib/schemas";
-
-function isDatabaseUnreachable(err: unknown): boolean {
-  if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P1001") return true;
-  return err instanceof Prisma.PrismaClientInitializationError;
-}
 
 export async function loginUser(
   values: LoginValues,
@@ -34,12 +29,21 @@ export async function loginUser(
       redirectTo: "/dashboard",
     });
   } catch (error) {
+    // Only a real phone/PIN mismatch may be reported as bad credentials.
+    if (isInvalidCredentials(error)) {
+      return { error: invalidCredentials };
+    }
     if (isDatabaseUnreachable(error)) {
-      console.error("[loginUser] DB error:", error);
+      console.error("[loginUser] database unreachable during sign-in:", error);
       return { error: tErrors("databaseUnreachable") };
     }
     if (error instanceof AuthError) {
-      return { error: invalidCredentials };
+      // A server-side fault — most commonly a missing `AUTH_SECRET`, which
+      // makes Auth.js reject every request with a `Configuration` error.
+      // Log the type so it is visible in the platform logs rather than
+      // masquerading as a wrong PIN for every member.
+      console.error(`[loginUser] auth error (${error.type}):`, error);
+      return { error: tErrors("unexpectedError") };
     }
     // NEXT_REDIRECT (successful sign-in) and anything unexpected
     throw error;

@@ -1,19 +1,14 @@
 "use server";
 
 import bcrypt from "bcryptjs";
-import { Prisma } from "@prisma/client";
 import { AuthError } from "next-auth";
 import { getTranslations } from "next-intl/server";
 import { signIn } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { normalizeRwandanPhone } from "@/lib/phone";
+import { isDatabaseUnreachable } from "@/lib/auth-errors";
 import { createRegisterSchema, type RegisterValues } from "@/lib/schemas";
 import { getUserLocale } from "@/i18n/locale";
-
-function isDatabaseUnreachable(err: unknown): boolean {
-  if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P1001") return true;
-  return err instanceof Prisma.PrismaClientInitializationError;
-}
 
 export async function registerUser(
   values: RegisterValues,
@@ -77,7 +72,10 @@ export async function registerUser(
     });
   } catch (err) {
     if (err instanceof AuthError) {
-      console.error("[registerUser] Account created but sign-in failed:", err);
+      // Includes `MissingSecret`: the account row exists but Auth.js cannot
+      // mint a session, so signing in again will fail the same way until the
+      // server configuration is fixed. The type makes that visible in logs.
+      console.error(`[registerUser] account created but sign-in failed (${err.type}):`, err);
       return { error: tErrors("accountCreatedSignInFailed") };
     }
     // Let Next.js process the successful redirect and surface unexpected errors.
