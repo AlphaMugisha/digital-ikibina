@@ -12,7 +12,6 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",
-    "@next/swc-win32-x64-msvc": "^16.2.10",
     "@prisma/client": "^6.19.3",
     "@swc/wasm": "^1.16.21",
     "africastalking": "^0.7.9",
