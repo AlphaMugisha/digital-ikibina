@@ -1,60 +1,74 @@
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { LogOut } from "@/components/icons";
 import { auth } from "@/auth";
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { LanguageSwitcher } from "@/components/language-switcher";
-import { logout } from "../actions";
+import { getProfileUser } from "@/lib/profile";
+import { formatRwandanPhone, maskNationalId } from "@/lib/phone";
+import { isLocale } from "@/i18n/config";
+import { PersonalInfoForm } from "./personal-info-form";
 
-export default async function ProfilePage() {
+export default async function ProfileOverviewPage() {
   const session = await auth();
-  if (!session?.user) redirect("/login");
+  if (!session?.user?.id) redirect("/login");
 
-  const t = await getTranslations("common");
+  const [t, user] = await Promise.all([
+    getTranslations("profile"),
+    getProfileUser(session.user.id),
+  ]);
+
+  if (!user) redirect("/login");
+
+  const maskedId = maskNationalId(user.nationalId);
+
+  /** Fields a member cannot change themselves — shown, but not editable. */
+  const locked = [
+    { label: t("phoneLabel"), value: formatRwandanPhone(user.phone), mono: true },
+    { label: t("nationalIdLabel"), value: maskedId, mono: true },
+  ];
 
   return (
-    <div className="mx-auto max-w-md">
-      <h1 className="font-display text-2xl font-medium tracking-tight text-foreground">
-        {t("profile")}
-      </h1>
+    <section className="rounded-2xl border border-border bg-card shadow-warm-sm">
+      <div className="border-b border-border p-5 sm:p-6">
+        <h2 className="font-display text-lg font-medium tracking-tight text-foreground">
+          {t("personalTitle")}
+        </h2>
+        <p className="mt-1 text-sm text-muted-foreground">{t("personalSubtitle")}</p>
+      </div>
 
-      <div className="mt-6 rounded-2xl border border-border bg-card p-5 shadow-warm-sm">
-        <div className="flex items-center gap-4">
-          <Avatar className="size-14">
-            <AvatarFallback className="bg-primary/10 text-xl font-semibold text-primary">
-              {(session.user.name ?? "?").charAt(0).toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
-          <div>
-            <p className="font-display font-semibold text-foreground">
-              {session.user.name}
-            </p>
-            <p className="text-sm text-muted-foreground">
-              {session.user.phone}
-            </p>
+      {/* Read-only identity first, so the editable form below is unambiguous
+          about what it actually controls. */}
+      <dl className="divide-y divide-border">
+        {locked.map((row) => (
+          <div
+            key={row.label}
+            className="flex flex-col gap-1 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6"
+          >
+            <dt className="text-sm font-medium text-foreground">{row.label}</dt>
+            <dd className="flex flex-wrap items-center gap-x-3 gap-y-1 sm:justify-end">
+              <span
+                className={
+                  row.value
+                    ? `text-sm text-foreground${row.mono ? " font-mono" : ""}`
+                    : "text-sm italic text-muted-foreground"
+                }
+              >
+                {row.value ?? t("notProvided")}
+              </span>
+              <span className="text-xs text-muted-foreground">{t("lockedNote")}</span>
+            </dd>
           </div>
-        </div>
-      </div>
+        ))}
+      </dl>
 
-      {/* Language — kept off the mobile top bar, lives here instead */}
-      <div className="mt-4 flex items-center justify-between rounded-2xl border border-border bg-card p-4 shadow-warm-sm md:hidden">
-        <span className="text-sm font-medium text-foreground">
-          {t("language")}
-        </span>
-        <LanguageSwitcher />
+      <div className="border-t border-border p-5 sm:p-6">
+        <PersonalInfoForm
+          defaultValues={{
+            name: user.name,
+            preferredLocale: isLocale(user.preferredLocale ?? "")
+              ? (user.preferredLocale as "rw" | "en" | "fr")
+              : "rw",
+          }}
+        />
       </div>
-
-      <form action={logout} className="mt-6">
-        <Button
-          type="submit"
-          variant="outline"
-          className="h-12 w-full gap-2 rounded-full border-destructive/30 text-base text-destructive hover:bg-destructive/10 hover:text-destructive"
-        >
-          <LogOut className="size-5" aria-hidden="true" />
-          {t("signOut")}
-        </Button>
-      </form>
-    </div>
+    </section>
   );
 }

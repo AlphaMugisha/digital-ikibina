@@ -269,3 +269,38 @@ export function createConstitutionRulesSchema(t: Translator) {
 }
 
 export type ConstitutionRulesValues = z.infer<ReturnType<typeof createConstitutionRulesSchema>>;
+
+/**
+ * Profile — the only member-editable fields. `phone` is deliberately absent:
+ * it is the login credential, so changing it is a leader/support action, not
+ * self-service. `nationalId` is absent for the same reason (identity data a
+ * leader verifies).
+ */
+export function createProfileSchema(t: Translator) {
+  return z.object({
+    name: z.string().trim().min(2, t("nameTooShort")),
+    preferredLocale: z.enum(["rw", "en", "fr"]),
+  });
+}
+
+export type ProfileValues = z.infer<ReturnType<typeof createProfileSchema>>;
+
+/** Changing a PIN always requires proving possession of the current one. */
+export function createChangePinSchema(t: Translator) {
+  return z
+    .object({
+      currentPin: z.string().regex(/^\d{5}$/, t("pinInvalid")),
+      newPin: z.string().regex(/^\d{5}$/, t("pinInvalid")),
+      confirmPin: z.string(),
+    })
+    .refine((data) => data.newPin === data.confirmPin, {
+      path: ["confirmPin"],
+      message: t("pinMismatch"),
+    })
+    .refine((data) => data.newPin !== data.currentPin, {
+      path: ["newPin"],
+      message: t("pinSameAsOld"),
+    });
+}
+
+export type ChangePinValues = z.infer<ReturnType<typeof createChangePinSchema>>;
