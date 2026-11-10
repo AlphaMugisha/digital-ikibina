@@ -40,11 +40,37 @@ const buttonVariants = cva(
   }
 )
 
+/**
+ * Wrap bare string/number children in a `<span>`.
+ *
+ * A conditionally rendered icon (`{isPending && <Loader2 />}`) makes React
+ * insert that icon before its next sibling. When the sibling is a raw text
+ * node, anything that rewrites text outside of React invalidates the
+ * reference React kept: Chrome's page translator swaps text nodes for
+ * `<font>` elements, and several extensions do the same. React then calls
+ * `insertBefore` against a node that is no longer a child of the button and
+ * throws `NotFoundError`. An element sibling survives that rewriting, so the
+ * reference stays valid.
+ *
+ * Skipped when `asChild` is set, because `Slot.Root` requires a single
+ * element child.
+ */
+function wrapBareText(children: React.ReactNode): React.ReactNode {
+  return React.Children.map(children, (child) =>
+    typeof child === "string" || typeof child === "number" ? (
+      <span>{child}</span>
+    ) : (
+      child
+    )
+  )
+}
+
 function Button({
   className,
   variant = "default",
   size = "default",
   asChild = false,
+  children,
   ...props
 }: React.ComponentProps<"button"> &
   VariantProps<typeof buttonVariants> & {
@@ -59,7 +85,9 @@ function Button({
       data-size={size}
       className={cn(buttonVariants({ variant, size, className }))}
       {...props}
-    />
+    >
+      {asChild ? children : wrapBareText(children)}
+    </Comp>
   )
 }
 

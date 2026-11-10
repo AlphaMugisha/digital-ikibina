@@ -55,8 +55,18 @@ export default async function RootLayout({
   const messages = await getMessages();
 
   return (
+    /**
+     * `translate="no"`: the app ships its own rw/en/fr translations (see
+     * LanguageSwitcher), so a browser translating on top of them is unwanted —
+     * it machine-translates Kinyarwanda savings and loan terminology over copy
+     * that was written deliberately. It also breaks React: Chrome's translator
+     * swaps text nodes for <font> elements, which invalidates the node
+     * references React keeps for its own inserts and removes, surfacing as
+     * "insertBefore/removeChild ... is not a child of this node".
+     */
     <html
       lang={locale}
+      translate="no"
       className={`${jakarta.variable} ${fraunces.variable} ${geistMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >

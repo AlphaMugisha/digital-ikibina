@@ -44,7 +44,7 @@ export function BottomNav() {
                 )}
               >
                 <Icon className="size-5" aria-hidden="true" />
-                {label}
+                <span>{label}</span>
                 {active && (
                   <span
                     className="absolute top-2 size-1 rounded-full bg-primary"
@@ -82,7 +82,7 @@ export function SidebarNav() {
               )}
             >
               <Icon className="size-5" aria-hidden="true" />
-              {label}
+              <span>{label}</span>
             </Link>
           </li>
         );
